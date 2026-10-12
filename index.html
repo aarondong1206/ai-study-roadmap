@@ -1,1627 +1,429 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0f766e">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="AI学习计划">
-  <title>AI 小白成长之路</title>
-  <style>
-    :root {
-      --primary: #0f766e;
-      --primary-2: #2563eb;
-      --accent: #c2410c;
-      --success: #15803d;
-      --warning: #b45309;
-      --danger: #b91c1c;
-      --bg: #f6f8f9;
-      --card: #ffffff;
-      --ink: #111827;
-      --muted: #667085;
-      --soft: #eef6f4;
-      --line: #d8dee4;
-      --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-      --radius: 8px;
-      --nav-h: 74px;
-      color-scheme: light;
-    }
-
-    * { box-sizing: border-box; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
-      letter-spacing: 0;
-      padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom));
-    }
-
-    button,
-    input,
-    textarea,
-    select {
-      font: inherit;
-    }
-
-    button,
-    a,
-    input,
-    textarea {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    a {
-      color: var(--primary-2);
-      text-decoration: none;
-    }
-
-    .app-header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      color: #fff;
-      background: linear-gradient(135deg, #0f766e 0%, #2563eb 100%);
-      box-shadow: 0 8px 20px rgba(15, 118, 110, 0.18);
-    }
-
-    .header-inner {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 18px 16px 14px;
-    }
-
-    .title-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 20px;
-      line-height: 1.25;
-      font-weight: 800;
-    }
-
-    .subtitle {
-      margin-top: 4px;
-      font-size: 12px;
-      opacity: 0.84;
-      line-height: 1.45;
-    }
-
-    .header-pill {
-      flex: 0 0 auto;
-      padding: 6px 9px;
-      border: 1px solid rgba(255,255,255,0.28);
-      border-radius: 999px;
-      background: rgba(255,255,255,0.12);
-      font-size: 11px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .overall {
-      margin-top: 14px;
-      padding: 10px 12px;
-      border: 1px solid rgba(255,255,255,0.22);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(10px);
-    }
-
-    .overall-meta {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 8px;
-      font-size: 12px;
-      opacity: 0.92;
-    }
-
-    .overall-meta strong {
-      font-size: 16px;
-      opacity: 1;
-    }
-
-    .bar {
-      width: 100%;
-      height: 7px;
-      border-radius: 999px;
-      overflow: hidden;
-      background: rgba(255,255,255,0.24);
-    }
-
-    .bar > span {
-      display: block;
-      width: 0%;
-      height: 100%;
-      border-radius: inherit;
-      background: #fff;
-      transition: width 0.35s ease;
-    }
-
-    main {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 14px 12px 0;
-    }
-
-    .page { display: none; }
-    .page.active { display: block; }
-
-    .grid {
-      display: grid;
-      gap: 10px;
-    }
-
-    .stats-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .card,
-    .task-card,
-    .resource-card,
-    .phase-card,
-    .log-card {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--card);
-      box-shadow: var(--shadow);
-    }
-
-    .card {
-      padding: 14px;
-      margin-bottom: 10px;
-    }
-
-    .metric {
-      min-height: 86px;
-      padding: 13px;
-    }
-
-    .metric-label {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
-    .metric-value {
-      margin-top: 5px;
-      font-size: 24px;
-      line-height: 1.1;
-      font-weight: 800;
-    }
-
-    .metric-hint {
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.4;
-    }
-
-    .section-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin: 16px 2px 8px;
-    }
-
-    .section-title {
-      margin: 0;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    .tiny-link {
-      border: 0;
-      background: transparent;
-      color: var(--primary);
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      padding: 5px;
-    }
-
-    .current-card {
-      display: grid;
-      grid-template-columns: 82px minmax(0, 1fr);
-      gap: 14px;
-      align-items: center;
-    }
-
-    .ring {
-      width: 82px;
-      height: 82px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: conic-gradient(var(--primary) 0deg, var(--primary) var(--ring), #e6eceb var(--ring), #e6eceb 360deg);
-    }
-
-    .ring-inner {
-      display: grid;
-      place-items: center;
-      width: 62px;
-      height: 62px;
-      border-radius: 50%;
-      background: #fff;
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    .card-title {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 800;
-      line-height: 1.35;
-    }
-
-    .card-text {
-      margin: 5px 0 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.55;
-    }
-
-    .chip-row,
-    .filter-row {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 2px 0 8px;
-      scrollbar-width: none;
-    }
-
-    .chip-row::-webkit-scrollbar,
-    .filter-row::-webkit-scrollbar { display: none; }
-
-    .chip,
-    .filter-btn {
-      flex: 0 0 auto;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: #fff;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 700;
-      line-height: 1;
-      padding: 8px 11px;
-      white-space: nowrap;
-    }
-
-    .chip.active,
-    .filter-btn.active {
-      border-color: var(--primary);
-      background: var(--soft);
-      color: var(--primary);
-    }
-
-    .search-box {
-      position: relative;
-      margin: 0 0 10px;
-    }
-
-    .search-box svg {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      width: 16px;
-      height: 16px;
-      transform: translateY(-50%);
-      color: var(--muted);
-      pointer-events: none;
-    }
-
-    .search-input,
-    .field,
-    .textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: #fff;
-      color: var(--ink);
-      outline: none;
-      transition: border-color 0.18s, box-shadow 0.18s;
-    }
-
-    .search-input {
-      padding: 11px 12px 11px 38px;
-      font-size: 14px;
-    }
-
-    .field {
-      padding: 10px 11px;
-      font-size: 14px;
-    }
-
-    .textarea {
-      min-height: 96px;
-      padding: 10px 11px;
-      resize: vertical;
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
-    .search-input:focus,
-    .field:focus,
-    .textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
-    }
-
-    .phase-card {
-      padding: 13px;
-      margin-bottom: 10px;
-    }
-
-    .phase-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 9px;
-    }
-
-    .phase-title {
-      margin: 0;
-      font-size: 15px;
-      font-weight: 800;
-      line-height: 1.35;
-    }
-
-    .phase-meta {
-      margin-top: 3px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .phase-pct {
-      color: var(--primary);
-      font-size: 20px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .thin-bar {
-      height: 6px;
-      border-radius: 999px;
-      overflow: hidden;
-      background: #e6eceb;
-    }
-
-    .thin-bar span {
-      display: block;
-      height: 100%;
-      width: 0%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--primary), var(--primary-2));
-      transition: width 0.35s ease;
-    }
-
-    .task-list {
-      display: grid;
-      gap: 9px;
-    }
-
-    .task-card {
-      display: grid;
-      grid-template-columns: 36px minmax(0, 1fr);
-      gap: 10px;
-      padding: 11px;
-      transition: transform 0.15s, border-color 0.15s, background 0.15s;
-    }
-
-    .task-card.done {
-      border-color: #bbf7d0;
-      background: #f0fdf4;
-    }
-
-    .task-card:active { transform: scale(0.995); }
-
-    .check-btn {
-      width: 30px;
-      height: 30px;
-      border: 2px solid #cbd5e1;
-      border-radius: 50%;
-      background: #fff;
-      color: #fff;
-      cursor: pointer;
-      display: grid;
-      place-items: center;
-      padding: 0;
-      margin-top: 1px;
-    }
-
-    .task-card.done .check-btn {
-      border-color: var(--success);
-      background: var(--success);
-    }
-
-    .check-btn svg {
-      width: 17px;
-      height: 17px;
-      stroke-width: 3;
-    }
-
-    .task-title {
-      font-size: 14px;
-      line-height: 1.42;
-      font-weight: 800;
-      overflow-wrap: anywhere;
-    }
-
-    .task-card.done .task-title {
-      color: #166534;
-      text-decoration: line-through;
-      text-decoration-color: #86efac;
-    }
-
-    .task-detail {
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.55;
-      overflow-wrap: anywhere;
-    }
-
-    .meta-line {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      min-height: 22px;
-      padding: 3px 7px;
-      border-radius: 999px;
-      background: #f1f5f9;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-
-    .tag.primary {
-      background: var(--soft);
-      color: var(--primary);
-    }
-
-    .tag.warn {
-      background: #fff7ed;
-      color: var(--accent);
-    }
-
-    .task-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-      margin-top: 9px;
-    }
-
-    .link-btn,
-    .action-btn,
-    .ghost-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      min-height: 38px;
-      border-radius: var(--radius);
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 800;
-      line-height: 1.1;
-      padding: 10px 12px;
-      border: 1px solid transparent;
-    }
-
-    .link-btn {
-      min-height: 32px;
-      padding: 8px 9px;
-      border-color: #bfdbfe;
-      background: #eff6ff;
-      color: #1d4ed8;
-    }
-
-    .action-btn {
-      width: 100%;
-      background: var(--primary);
-      color: #fff;
-      border-color: var(--primary);
-    }
-
-    .action-btn.secondary {
-      background: var(--primary-2);
-      border-color: var(--primary-2);
-    }
-
-    .action-btn.danger {
-      background: var(--danger);
-      border-color: var(--danger);
-    }
-
-    .ghost-btn {
-      width: 100%;
-      background: #fff;
-      color: var(--primary);
-      border-color: var(--line);
-    }
-
-    .link-btn svg,
-    .action-btn svg,
-    .ghost-btn svg,
-    .nav-btn svg {
-      width: 16px;
-      height: 16px;
-      flex: 0 0 auto;
-    }
-
-    .button-row {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 9px;
-      margin-top: 12px;
-    }
-
-    .form-grid {
-      display: grid;
-      gap: 10px;
-    }
-
-    .field-label {
-      display: block;
-      margin-bottom: 6px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .resource-card {
-      padding: 13px;
-      margin-bottom: 9px;
-    }
-
-    .resource-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .resource-title {
-      margin: 0;
-      font-size: 14px;
-      line-height: 1.4;
-      font-weight: 800;
-      overflow-wrap: anywhere;
-    }
-
-    .resource-desc {
-      margin: 5px 0 0;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.55;
-    }
-
-    .resource-card .link-btn {
-      margin-top: 10px;
-    }
-
-    .log-card {
-      padding: 12px;
-      margin-bottom: 8px;
-    }
-
-    .log-date {
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .log-note {
-      margin-top: 5px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.55;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-
-    .empty {
-      padding: 32px 18px;
-      color: var(--muted);
-      text-align: center;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 25;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      min-height: var(--nav-h);
-      padding: 7px 6px calc(7px + env(safe-area-inset-bottom));
-      border-top: 1px solid var(--line);
-      background: rgba(255,255,255,0.96);
-      backdrop-filter: blur(14px);
-    }
-
-    .nav-btn {
-      border: 0;
-      border-radius: var(--radius);
-      background: transparent;
-      color: var(--muted);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: 800;
-      min-width: 0;
-      padding: 5px 2px;
-    }
-
-    .nav-btn.active {
-      color: var(--primary);
-      background: var(--soft);
-    }
-
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px);
-      z-index: 40;
-      max-width: calc(100vw - 28px);
-      transform: translateX(-50%) translateY(18px);
-      opacity: 0;
-      pointer-events: none;
-      border-radius: 999px;
-      background: #111827;
-      color: #fff;
-      padding: 10px 15px;
-      font-size: 13px;
-      font-weight: 800;
-      box-shadow: 0 10px 28px rgba(17,24,39,0.25);
-      transition: opacity 0.22s, transform 0.22s;
-      white-space: nowrap;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    @media (min-width: 760px) {
-      body { padding-bottom: 0; }
-      .app-shell {
-        display: grid;
-        grid-template-columns: 220px minmax(0, 1fr);
-        max-width: 1180px;
-        margin: 0 auto;
-      }
-      .app-header .header-inner { max-width: 1180px; }
-      main { padding: 18px; }
-      .bottom-nav {
-        position: sticky;
-        top: 138px;
-        align-self: start;
-        grid-template-columns: 1fr;
-        min-height: 0;
-        height: auto;
-        margin: 18px 0 0 18px;
-        padding: 10px;
-        border: 1px solid var(--line);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-      }
-      .nav-btn {
-        min-height: 48px;
-        flex-direction: row;
-        justify-content: flex-start;
-        padding: 10px 12px;
-        font-size: 13px;
-      }
-      .stats-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-      .desktop-two {
-        display: grid;
-        grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
-        gap: 12px;
-      }
-      .button-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>保险×AI 成长看板</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;800&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body { margin: 0; }
+/* Layout: a policy-schedule ledger. Summary band on top (progress + this week), phase timeline, then week rows like numbered policy lines. */
+:root {
+  --bg: #f3f6f7;
+  --paper: #ffffff;
+  --ink: #142a3a;
+  --muted: #5b6e7b;
+  --line: #d8e1e6;
+  --accent: #0f5c7a;
+  --accent-soft: #e2eef3;
+  --done: #2f7d5b;
+  --done-soft: #e3f1ea;
+  --t-tech: #2d5fa8;
+  --t-biz: #9a5b13;
+  --t-ground: #6b4aa0;
+  --t-work: #1f7a74;
+  --t-review: #6a737b;
+  --display: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1a21; --paper: #16242d; --ink: #e3ecf0; --muted: #93a6b2; --line: #2a3b46;
+    --accent: #6cb8d6; --accent-soft: #1b3442; --done: #6cc79d; --done-soft: #183428;
+    --t-tech: #86aef0; --t-biz: #e0a861; --t-ground: #b79ae6; --t-work: #6fcac2; --t-review: #a3adb5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1a21; --paper: #16242d; --ink: #e3ecf0; --muted: #93a6b2; --line: #2a3b46;
+  --accent: #6cb8d6; --accent-soft: #1b3442; --done: #6cc79d; --done-soft: #183428;
+  --t-tech: #86aef0; --t-biz: #e0a861; --t-ground: #b79ae6; --t-work: #6fcac2; --t-review: #a3adb5;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.6; }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 64px; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+button, textarea, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* header */
+.head { display: grid; gap: 6px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
+.head h1 { font-size: clamp(26px, 5vw, 36px); font-weight: 800; letter-spacing: .01em; }
+.head p { margin: 0; color: var(--muted); max-width: 62ch; }
+.sync { font-size: 12px; color: var(--muted); }
+
+/* summary band */
+.summary { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 16px; }
+@media (max-width: 760px) { .summary { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 18px; min-width: 0; }
+.big { font-family: var(--mono); font-size: 44px; font-weight: 500; line-height: 1; font-variant-numeric: tabular-nums; }
+.big small { font-size: 16px; color: var(--muted); margin-left: 4px; }
+.bar { height: 8px; background: var(--accent-soft); border-radius: 99px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--done); border-radius: 99px; transition: width .3s; }
+.stack { display: grid; gap: 12px; align-content: start; }
+.tracks { display: grid; gap: 8px; }
+.trk { display: grid; grid-template-columns: 3.2em minmax(0,1fr) 3.6em; gap: 10px; align-items: center; font-size: 13px; }
+.trk .bar { height: 6px; }
+.trk span:last-child { text-align: right; font-family: var(--mono); color: var(--muted); }
+
+.now-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; justify-content: space-between; }
+.now-head h2 { font-size: 22px; }
+.week-code { font-family: var(--mono); font-size: 13px; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 4px; }
+.label { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+
+/* phases */
+.phases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 760px) { .phases { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ph { text-align: left; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; display: grid; gap: 6px; min-width: 0; }
+.ph:hover { border-color: var(--accent); }
+.ph[aria-current="true"] { border-color: var(--accent); box-shadow: inset 0 3px 0 var(--accent); }
+.ph b { font-family: var(--display); font-size: 15px; }
+.ph .meta { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+/* filters */
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip { border: 1px solid var(--line); background: var(--paper); border-radius: 99px; padding: 4px 12px; font-size: 13px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.toggle { margin-left: auto; font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center; cursor: pointer; }
+
+/* phase sections and weeks */
+.phase-sec { display: grid; gap: 12px; scroll-margin-top: 12px; }
+.phase-sec > header { display: grid; gap: 4px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); }
+.phase-sec > header h2 { font-size: 21px; }
+.phase-sec > header p { margin: 0; font-size: 13px; color: var(--muted); max-width: 70ch; }
+.weeks { display: grid; gap: 0; }
+.wk { display: grid; grid-template-columns: 8.5em minmax(0, 1fr); gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+@media (max-width: 560px) { .wk { grid-template-columns: minmax(0, 1fr); gap: 6px; } }
+.wk.current { background: var(--accent-soft); margin-inline: -12px; padding-inline: 12px; border-radius: 8px; border-bottom-color: transparent; }
+.wk-id { display: grid; gap: 2px; align-content: start; }
+.wk-id .mono:first-child { font-size: 15px; font-weight: 500; }
+.wk-id .mono + .mono { font-size: 12px; color: var(--muted); }
+.wk-id .here { font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: .06em; }
+.wk-body { display: grid; gap: 8px; min-width: 0; }
+.wk-body h3 { font-family: var(--body); font-size: 16px; font-weight: 700; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.wk-body h3 .count { font-family: var(--mono); font-size: 12px; font-weight: 400; color: var(--muted); }
+.wk-body h3 .count.all { color: var(--done); }
+.tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.task { display: grid; grid-template-columns: 22px 3.2em minmax(0, 1fr); gap: 8px; align-items: start; }
+.task input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--done); cursor: pointer; }
+.task input:disabled { cursor: default; }
+.task label { cursor: pointer; }
+.task.done label { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+.tag { font-size: 12px; font-weight: 700; padding-top: 2px; }
+.tag[data-t="学习"] { color: var(--t-tech); }
+.tag[data-t="练习"] { color: var(--t-work); }
+.tag[data-t="考证"] { color: var(--t-biz); }
+.tag[data-t="复盘"] { color: var(--t-review); }
+.res { display: inline-flex; gap: 4px; align-items: baseline; margin-left: 6px; font-size: 13px; color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); overflow-wrap: anywhere; }
+.res:hover { border-bottom-color: var(--accent); }
+.certs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 760px) { .certs { grid-template-columns: minmax(0, 1fr); } }
+.cert { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.cert.got { border-color: var(--done); background: var(--done-soft); }
+.cert .when { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.cert b { font-size: 15px; line-height: 1.4; }
+.cert .fee { font-size: 13px; color: var(--muted); }
+.stamp { font-size: 12px; font-weight: 700; color: var(--t-biz); }
+.cert.got .stamp { color: var(--done); }
+.opt { font-size: 13px; color: var(--muted); margin: 0; }
+.opt a { color: var(--accent); }
+.sec-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.sec-title h2 { font-size: 21px; }
+.out { font-size: 13px; color: var(--muted); }
+.out b { font-weight: 500; color: var(--ink); }
+details.note summary { font-size: 13px; color: var(--accent); cursor: pointer; width: fit-content; }
+details.note textarea, .now textarea { width: 100%; min-height: 84px; resize: vertical; margin-top: 6px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); font-size: 14px; }
+.saved { font-size: 12px; color: var(--muted); min-height: 1em; }
+.now .tasks { margin-top: 4px; }
+.foot { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+</style>
 </head>
 <body>
-  <header class="app-header">
-    <div class="header-inner">
-      <div class="title-row">
-        <div>
-          <h1>AI 小白成长之路</h1>
-          <div class="subtitle">从 Python 零基础到可落地的人工智能项目能力</div>
-        </div>
-        <div class="header-pill" id="stagePill">第 1 阶段</div>
-      </div>
-      <div class="overall" aria-label="总体学习进度">
-        <div class="overall-meta">
-          <span>总体进度 <strong id="overallPct">0%</strong></span>
-          <span id="overallCount">0 / 0 项</span>
-        </div>
-        <div class="bar"><span id="overallBar"></span></div>
-      </div>
-    </div>
+
+
+<div class="wrap">
+  <header class="head">
+    <div class="eyebrow">2026-10-12 → 2027-10-10 · 52 周 · 每周约 8 小时</div>
+    <h1>保险×AI 成长看板</h1>
+    <p>两条线：考证，和 AI 技能学习（Python → 大模型 API 与提示词 → RAG → Agent）。每项学习任务都附了视频或课程链接，学完就打勾。</p>
+    <div class="sync" id="sync">正在连接保存服务…</div>
   </header>
 
-  <div class="app-shell">
-    <nav class="bottom-nav" aria-label="主导航">
-      <button class="nav-btn active" data-page="dashboard" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h8V3H3v10Z"/><path d="M13 21h8V11h-8v10Z"/><path d="M13 3v6h8V3h-8Z"/><path d="M3 21h8v-6H3v6Z"/></svg>
-        <span>首页</span>
-      </button>
-      <button class="nav-btn" data-page="plan" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><path d="M3 10h18"/><path d="M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg>
-        <span>路线</span>
-      </button>
-      <button class="nav-btn" data-page="today" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        <span>今日</span>
-      </button>
-      <button class="nav-btn" data-page="resources" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
-        <span>资源</span>
-      </button>
-      <button class="nav-btn" data-page="settings" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06A2 2 0 1 1 7.03 3.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3a2 2 0 0 1 4 0v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.2.36.34.74.4 1.1H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.51.9Z"/></svg>
-        <span>设置</span>
-      </button>
-    </nav>
+  <section class="summary">
+    <div class="panel stack">
+      <div class="label">总进度</div>
+      <div class="big" id="pct">0<small>%</small></div>
+      <div class="bar"><i id="pctbar" style="width:0%"></i></div>
+      <div class="mono" style="font-size:13px;color:var(--muted)" id="pctnum"></div>
+      <div class="tracks" id="tracks"></div>
+    </div>
+    <div class="panel stack now" id="now"></div>
+  </section>
+
+  <section class="stack" aria-labelledby="cert-title">
+    <div class="sec-title"><h2 id="cert-title">证书时间线</h2><span class="label">考完勾选当周的考试任务，这里会变成「已考」</span></div>
+    <div class="certs" id="certs"></div>
+    <p class="opt" id="opts"></p>
+  </section>
+
+  <nav class="phases" id="phases" aria-label="阶段"></nav>
+
+  <div class="filters" id="filters" role="group" aria-label="按能力线筛选"></div>
+
+  <main id="list" class="stack" style="gap:36px"></main>
+
+  <footer class="foot">本地版：勾选和复盘保存在这台电脑的浏览器里，换浏览器或清除浏览数据会丢失；想多设备同步请用在线看板。证书费用和考试时间以官网为准；海外课程网站在国内可能需要网络工具，B站、慕课、阿里云的课程可以直接看。</footer>
+</div>
+
+<script>
+const PLAN = {"start": "2026-10-12", "hours": "每周约 8 小时", "links": {"PY_HM": ["黑马程序员 Python 零基础全套（B站，164 集，约 32 小时）", "https://www.bilibili.com/video/BV1qW4y1a7fU/"], "PY_SONG": ["嵩天《Python 语言程序设计》（中国大学 MOOC，北京理工，对应二级 Python）", "https://www.icourse163.org/course/BIT-268001"], "LHY": ["李宏毅《生成式 AI 导论 2024》（B站搬运，20 集）", "https://www.bilibili.com/video/BV1DuDYYCEw4/"], "PROMPT": ["吴恩达 × OpenAI 提示工程课（B站 Datawhale 中文翻译，9 集）", "https://www.bilibili.com/video/BV1Bo4y1A7FU/"], "LLMU": ["Datawhale《动手学大模型应用开发》（图文教程）", "https://github.com/datawhalechina/llm-universe"], "RAG": ["吴恩达 LangChain: Chat with Your Data（8 节视频，约 1.3 小时）", "https://www.deeplearning.ai/short-courses/langchain-chat-with-your-data/"], "HF": ["Hugging Face AI Agents 课程（中文版，免费证书）", "https://huggingface.co/learn/agents-course/zh-CN/unit0/introduction"], "AGENTIC": ["吴恩达 Agentic AI（31 节视频，约 10 小时，视频可免费看）", "https://www.deeplearning.ai/courses/agentic-ai/"], "ACA_COURSE": ["阿里云大模型工程师 ACA 官方课程", "https://edu.aliyun.com/course/3126500/"], "ACP_COURSE": ["阿里云大模型 ACP 官方课程", "https://edu.aliyun.com/course/3130200/"], "ACP_REPO": ["阿里云大模型 ACP 教程（GitHub，中文 Notebook）", "https://github.com/AlibabaCloudDocs/aliyun_acp_learning"], "LLM_CERT": ["阿里云大模型认证总页", "https://edu.aliyun.com/certification/llm"], "ACA_CERT": ["阿里云大模型 ACA 认证页", "https://edu.aliyun.com/certification/aca13"], "AI901": ["Microsoft AI-901 认证页", "https://learn.microsoft.com/zh-cn/credentials/certifications/azure-ai-fundamentals/"], "MS_P1": ["微软官方学习路径：面向技术人员的 AI 概念（中文，7 个模块）", "https://learn.microsoft.com/zh-cn/training/paths/ai-concepts/"], "MS_P2": ["微软官方学习路径：开始使用 Azure 上的 AI 应用和代理（中文，7 个模块）", "https://learn.microsoft.com/zh-cn/training/paths/get-started-ai-apps-agents/"]}, "certs": [{"name": "阿里云大模型工程师 ACA", "when": "2027 年 1 月下旬（W16），W14 预约", "fee": "¥600", "form": "线上笔试", "why": "阿里云大模型认证的入门级，考提示词、RAG、微调、Agent 的基本概念，国内企业认知度高", "link": "ACA_CERT", "core": true, "doneTask": "w16-1"}, {"name": "Microsoft Azure AI Fundamentals（AI-901）", "when": "2027 年 3 月下旬（W24），W23 预约", "fee": "按国家定价，美国 $99，以报名页为准", "form": "线上或考点，约 45 分钟，有简体中文", "why": "2026 年 6 月起取代 AI-900 的国际通用 AI 基础认证，在外资企业中认知度较高，和你的 LOMA 一样是国际证书", "link": "AI901", "core": true, "doneTask": "w24-1"}, {"name": "阿里云大模型高级工程师 ACP", "when": "2027 年 8 月中旬（W44），W40 预约", "fee": "¥1200", "form": "线下笔试", "why": "ACA 的进阶版，考 RAG、Agent、模型优化、部署与安全，是这一年学习主线的最终检验", "link": "LLM_CERT", "core": true, "doneTask": "w43-2"}], "phases": [{"id": "P1", "name": "阶段 1｜Python 基础", "range": [1, 8], "goal": "从零学会 Python 基础语法，能独立写 50–100 行的小脚本", "check": "不看视频，独立写出一个读写 JSON 文件、带函数和循环的脚本"}, {"id": "P2", "name": "阶段 2｜大模型入门 + 考 ACA", "range": [9, 16], "goal": "理解大模型原理，学会调用 API 和写提示词，考阿里云 ACA", "check": "通过阿里云大模型 ACA"}, {"id": "P3", "name": "阶段 3｜Python 进阶 + 考 AI-901", "range": [17, 24], "goal": "练熟用 Python 处理文件、PDF 和批量调用 API；用微软官方中文课程备考 AI-901", "check": "通过 Microsoft AI-901；能用 Python 批量读取 PDF 并调用 API 处理"}, {"id": "P4", "name": "阶段 4｜RAG 知识库问答", "range": [25, 32], "goal": "学会文档切片、向量检索、检索问答和效果评估", "check": "自己搭出一个带出处的知识库问答，并用 20 道题评估"}, {"id": "P5", "name": "阶段 5｜Agent + 考 ACP", "range": [33, 44], "goal": "学会工具调用、规划、多智能体和评测，考阿里云大模型 ACP", "check": "通过阿里云大模型 ACP"}, {"id": "P6", "name": "阶段 6｜查漏补缺与年度复盘", "range": [45, 52], "goal": "补看前面跳过的内容，定下一年方向", "check": "三张证书到手，形成下一年计划"}], "items": [{"w": [1, 1], "theme": "环境和第一行代码", "tasks": [["学习", "看黑马 Python：课程介绍、环境安装、基础语法", "PY_HM"], ["练习", "安装 Python 和编辑器（VS Code 或 PyCharm），跑通第一行 print", null], ["复盘", "定好每周固定的 8 小时，写进日历", null]]}, {"w": [2, 2], "theme": "变量与数据类型", "tasks": [["学习", "黑马 Python：字面量、变量、数据类型、字符串格式化、input", "PY_HM"], ["练习", "写一个小程序：输入年龄和保额，打印一句话结果", null]]}, {"w": [3, 3], "theme": "判断与循环", "tasks": [["学习", "黑马 Python：if 判断、while 和 for 循环", "PY_HM"], ["练习", "做完这两章的全部课后练习", null]]}, {"w": [4, 4], "theme": "函数", "tasks": [["学习", "黑马 Python：函数定义、参数、返回值、作用域", "PY_HM"], ["练习", "把上周的练习改写成函数", null], ["复盘", "第 1 次月度复盘：进度和时间是否跟得上", null]]}, {"w": [5, 5], "theme": "数据容器（上）", "tasks": [["学习", "黑马 Python：列表、元组、字符串的常用操作", "PY_HM"], ["练习", "每个知识点至少敲 2 个例子", null]]}, {"w": [6, 6], "theme": "数据容器（下）", "tasks": [["学习", "黑马 Python：集合、字典、容器通用操作", "PY_HM"], ["练习", "用字典存 5 条信息，写函数按条件筛选", null]]}, {"w": [7, 7], "theme": "文件、异常、模块", "tasks": [["学习", "黑马 Python：函数进阶、文件读写、异常处理、模块与包", "PY_HM"], ["练习", "读写一个 JSON 文件，并处理文件不存在的情况", null]]}, {"w": [8, 8], "theme": "阶段 1 检查", "tasks": [["练习", "不看视频，独立写一个 50–100 行的脚本（读 JSON、用函数和循环处理、写回文件）", null], ["复盘", "阶段 1 复盘；第 2 次月度复盘", null]]}, {"w": [9, 9], "theme": "大模型是什么", "tasks": [["学习", "李宏毅《生成式 AI 导论》第 0–4 讲", "LHY"], ["练习", "记下 3 个没听懂的概念，下周带着问题继续看", null]]}, {"w": [10, 10], "theme": "大模型怎么炼成", "tasks": [["学习", "李宏毅《生成式 AI 导论》第 5–9 讲（含 AI Agent）", "LHY"], ["练习", "用自己的话写一页纸：预训练、指令微调、RLHF、Agent 分别是什么", null]]}, {"w": [11, 11], "theme": "第一次调用 API", "tasks": [["学习", "Datawhale《动手学大模型应用开发》第 2 章：使用 LLM API", "LLMU"], ["练习", "开通阿里云百炼或 DeepSeek API，运行 code/01_call_llm.py", null]]}, {"w": [12, 12], "theme": "提示词工程", "tasks": [["学习", "吴恩达 × OpenAI 提示工程课，9 集全部看完", "PROMPT"], ["练习", "用 API 对比 3 种提示词写法，记录输出差异", null]]}, {"w": [13, 13], "theme": "ACA 备考（1）", "tasks": [["学习", "阿里云 ACA 官方课程：前半部分", "ACA_COURSE"], ["练习", "用 API 写一个提示词模板：输入问题，输出固定格式的 JSON", null]]}, {"w": [14, 14], "theme": "ACA 备考（2）", "tasks": [["学习", "阿里云 ACA 官方课程：后半部分", "ACA_COURSE"], ["考证", "在认证页预约 ACA 考试（定在 W16）", "ACA_CERT"]]}, {"w": [15, 15], "theme": "ACA 冲刺", "tasks": [["练习", "对照考纲查漏补缺，弱项回看课程", "ACA_CERT"], ["学习", "选看：李宏毅第 12–14 讲（能力评测与安全）", "LHY"]]}, {"w": [16, 16], "theme": "考 ACA", "tasks": [["考证", "参加阿里云大模型工程师 ACA 考试（线上，¥600）", "ACA_CERT"], ["复盘", "阶段 2 复盘", null]]}, {"w": [17, 17], "theme": "春节周（轻量）", "tasks": [["学习", "嵩天 MOOC：前两周内容，当复习看", "PY_SONG"]]}, {"w": [18, 18], "theme": "节后恢复", "tasks": [["学习", "嵩天 MOOC：基本数据类型、程序控制结构", "PY_SONG"]]}, {"w": [19, 19], "theme": "函数与数据结构", "tasks": [["学习", "嵩天 MOOC：函数、组合数据类型", "PY_SONG"], ["练习", "做完对应章节的课后编程题", null]]}, {"w": [20, 20], "theme": "文件与数据格式", "tasks": [["学习", "嵩天 MOOC：文件和数据格式化（CSV、JSON）", "PY_SONG"], ["练习", "读一个 CSV 文件，统计后写成 JSON", null]]}, {"w": [21, 21], "theme": "读 PDF + AI-901 备考（1）", "tasks": [["练习", "用 pypdf 读出一份 PDF 的全部文字，按段落切开", null], ["学习", "微软学习路径「AI 概念」7 个模块", "MS_P1"]]}, {"w": [22, 22], "theme": "批量调用 API + AI-901 备考（2）", "tasks": [["练习", "把 PDF 段落逐段交给大模型总结，结果存成 JSON", null], ["学习", "微软学习路径「Azure 上的 AI 应用和代理」7 个模块", "MS_P2"]]}, {"w": [23, 23], "theme": "AI-901 冲刺", "tasks": [["考证", "预约 AI-901 考试（定在 W24），做认证页上的免费模拟测试", "AI901"], ["练习", "整理第 21–22 周的代码，写清使用说明", null]]}, {"w": [24, 24], "theme": "考 AI-901", "tasks": [["考证", "参加 Microsoft AI-901 考试", "AI901"], ["复盘", "阶段 3 复盘", null]]}, {"w": [25, 26], "theme": "RAG 入门", "tasks": [["学习", "吴恩达 LangChain: Chat with Your Data，8 节全部看完", "RAG"], ["学习", "《动手学大模型应用开发》第 3 章：搭建知识库（嵌入、切片、向量库）", "LLMU"]]}, {"w": [27, 28], "theme": "动手搭 RAG", "tasks": [["学习", "《动手学大模型应用开发》第 4 章：检索问答链、Streamlit 界面", "LLMU"], ["练习", "用 10 份保险公司官网公开的健康险条款搭一个问答，回答要带出处", null]]}, {"w": [29, 30], "theme": "评估与优化", "tasks": [["学习", "《动手学大模型应用开发》第 5 章：系统评估与优化", "LLMU"], ["学习", "阿里云 ACP 教程：RAG 相关章节", "ACP_REPO"]]}, {"w": [31, 32], "theme": "RAG 收尾", "tasks": [["练习", "写 20 道测试题评估自己的问答，针对错题改一版", null], ["复盘", "阶段 4 复盘", null]]}, {"w": [33, 34], "theme": "Agent 入门", "tasks": [["学习", "Hugging Face Agents 课程第 1 单元（中文）", "HF"], ["练习", "跑通课程里的第一个 Agent 例子", null]]}, {"w": [35, 36], "theme": "Agent 设计模式", "tasks": [["学习", "吴恩达 Agentic AI 前半：反思、工具调用", "AGENTIC"], ["练习", "跟着课程代码跑一遍工具调用的例子", null]]}, {"w": [37, 38], "theme": "Agent 框架", "tasks": [["学习", "Hugging Face 第 2–3 单元：LangGraph 等框架、Agentic RAG", "HF"], ["学习", "吴恩达 Agentic AI 后半：规划、多智能体、评测", "AGENTIC"]]}, {"w": [39, 40], "theme": "ACP 备考（1）", "tasks": [["学习", "阿里云 ACP 教程：提示词、RAG、模型优化章节", "ACP_REPO"], ["考证", "预约 ACP 线下考试（定在 W44）", "LLM_CERT"]]}, {"w": [41, 42], "theme": "ACP 备考（2）", "tasks": [["学习", "阿里云 ACP 教程：Agent、部署、安全合规章节；配合官方课程", "ACP_COURSE"], ["学习", "选做：Hugging Face 第 4 单元最终项目", "HF"]]}, {"w": [43, 44], "theme": "考 ACP", "tasks": [["练习", "对照考纲查漏补缺", "ACP_REPO"], ["考证", "参加阿里云大模型 ACP 考试（线下，¥1200）", "LLM_CERT"], ["复盘", "阶段 5 复盘", null]]}, {"w": [45, 46], "theme": "查漏补缺", "tasks": [["学习", "回看前面标记为没学懂的内容", null]]}, {"w": [47, 48], "theme": "继续深化", "tasks": [["学习", "选看：吴恩达 Agentic AI 中没看的部分", "AGENTIC"]]}, {"w": [49, 50], "theme": "补课", "tasks": [["学习", "选看：李宏毅第 15–18 讲（图像与视频生成）", "LHY"]]}, {"w": [51, 52], "theme": "年度复盘", "tasks": [["复盘", "整理证书和学习笔记", null], ["复盘", "定下一年方向，例如进阶考微软 AI-103（AI 应用与 Agent 开发者）", null]]}], "owned": "LOMA（保险专业）"};
+const TRACKS = ["学习", "练习", "考证", "复盘"];
+const TRACK_TOKEN = { 学习: "tech", 练习: "work", 考证: "biz", 复盘: "review" };
+function resLink(key) {
+  if (!key || !PLAN.links[key]) return null;
+  const [label, url] = PLAN.links[key];
+  const short = label.replace(/（.*?）/g, "");
+  return el("a", { class: "res", href: url, target: "_blank", rel: "noopener", title: label }, short + " ↗");
+}
+const START = new Date(PLAN.start + "T00:00:00+08:00");
+const DAY = 86400000;
+
+function wkDate(w, end) {
+  const d = new Date(START.getTime() + (7 * (w - 1) + (end ? 6 : 0)) * DAY);
+  const p = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", month: "numeric", day: "numeric" }).formatToParts(d);
+  return p.find(x => x.type === "month").value + "/" + p.find(x => x.type === "day").value;
+}
+function pad(n) { return String(n).padStart(2, "0"); }
+function itemId(it) { return "w" + pad(it.w[0]); }
+function taskId(it, i) { return itemId(it) + "-" + (i + 1); }
+function weekLabel(it) { return it.w[0] === it.w[1] ? "W" + it.w[0] : "W" + it.w[0] + "–" + it.w[1]; }
+
+const nowWeek = Math.min(52, Math.max(1, Math.floor((Date.now() - START.getTime()) / (7 * DAY)) + 1));
+const currentItem = PLAN.items.find(it => nowWeek >= it.w[0] && nowWeek <= it.w[1]) || PLAN.items[0];
+const currentPhase = PLAN.phases.find(p => nowWeek >= p.range[0] && nowWeek <= p.range[1]) || PLAN.phases[0];
+
+const state = { done: {}, notes: {}, filter: null, hideDone: false, canWrite: true, mode: "local" };
+let db = null;
+
+/* ---------- local cache (per-viewer fallback) ---------- */
+const LS = "ins-ai-board-v1";
+function loadLocal() {
+  try { const v = JSON.parse(localStorage.getItem(LS) || "{}"); state.done = v.done || {}; state.notes = v.notes || {}; } catch (e) {}
+}
+function saveLocal() {
+  try { localStorage.setItem(LS, JSON.stringify({ done: state.done, notes: state.notes })); } catch (e) {}
+}
+
+/* ---------- render ---------- */
+function el(tag, attrs, ...kids) {
+  const n = document.createElement(tag);
+  for (const k in attrs || {}) {
+    if (k === "class") n.className = attrs[k];
+    else if (k === "text") n.textContent = attrs[k];
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), attrs[k]);
+    else if (attrs[k] !== null && attrs[k] !== undefined && attrs[k] !== false) n.setAttribute(k, attrs[k]);
+  }
+  for (const c of kids) if (c != null) n.append(c);
+  return n;
+}
+
+function allTasks() {
+  const out = [];
+  PLAN.items.forEach(it => it.tasks.forEach((t, i) => out.push({ id: taskId(it, i), track: t[0], text: t[1], it })));
+  return out;
+}
+
+function renderSummary() {
+  const tasks = allTasks();
+  const done = tasks.filter(t => state.done[t.id]).length;
+  const pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
+  document.getElementById("pct").firstChild.nodeValue = pct;
+  document.getElementById("pctbar").style.width = pct + "%";
+  document.getElementById("pctnum").textContent = `已完成 ${done} / ${tasks.length} 项任务 · 当前第 ${nowWeek} 周`;
+  const tr = document.getElementById("tracks");
+  tr.replaceChildren(...TRACKS.map(k => {
+    const all = tasks.filter(t => t.track === k), d = all.filter(t => state.done[t.id]).length;
+    const p = all.length ? d / all.length * 100 : 0;
+    return el("div", { class: "trk" }, el("span", { class: "tag", "data-t": k, text: k }),
+      el("div", { class: "bar" }, el("i", { style: `width:${p}%;background:var(--t-${TRACK_TOKEN[k]})` })),
+      el("span", { text: `${d}/${all.length}` }));
+  }));
+}
+
+function taskRow(it, t, i) {
+  const id = taskId(it, i);
+  const on = !!state.done[id];
+  const cb = el("input", { type: "checkbox", id: "cb-" + id + (it === currentItem ? "" : ""), "data-task": id });
+  cb.checked = on;
+  cb.disabled = !state.canWrite;
+  cb.addEventListener("change", () => toggle(id, cb.checked));
+  return el("li", { class: "task" + (on ? " done" : ""), "data-track": t[0] },
+    cb, el("span", { class: "tag", "data-t": t[0], text: t[0] }), el("div", {}, el("label", { for: "cb-" + id, text: t[1] }), resLink(t[2])));
+}
+
+function noteBox(it, idPrefix) {
+  const key = itemId(it);
+  const ta = el("textarea", { id: idPrefix + key, placeholder: "完成了什么 / 卡在哪里 / 下周唯一优先级" });
+  ta.value = state.notes[key] || "";
+  ta.disabled = !state.canWrite;
+  const msg = el("div", { class: "saved" });
+  let timer = null;
+  const commit = () => { clearTimeout(timer); if ((state.notes[key] || "") !== ta.value) saveNote(key, ta.value, msg); };
+  ta.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(commit, 1200); });
+  ta.addEventListener("blur", commit);
+  return [ta, msg];
+}
+
+function renderNow() {
+  const it = currentItem;
+  const box = document.getElementById("now");
+  const n = it.tasks.filter((t, i) => state.done[taskId(it, i)]).length;
+  // Use separate ids for the "now" copy of the checkboxes
+  const list = el("ul", { class: "tasks" }, ...it.tasks.map((t, i) => {
+    const id = taskId(it, i);
+    const cb = el("input", { type: "checkbox", id: "now-" + id });
+    cb.checked = !!state.done[id]; cb.disabled = !state.canWrite;
+    cb.addEventListener("change", () => toggle(id, cb.checked));
+    return el("li", { class: "task" + (state.done[id] ? " done" : "") }, cb,
+      el("span", { class: "tag", "data-t": t[0], text: t[0] }), el("div", {}, el("label", { for: "now-" + id, text: t[1] }), resLink(t[2])));
+  }));
+  const [ta, msg] = noteBox(it, "now-note-");
+  box.replaceChildren(
+    el("div", { class: "now-head" },
+      el("h2", { text: "本周：" + it.theme }),
+      el("span", { class: "week-code", text: `${weekLabel(it)} · ${wkDate(it.w[0])}–${wkDate(it.w[1], true)}` })),
+    el("div", { class: "label", text: `${currentPhase.name} · 本周 ${n}/${it.tasks.length}` }),
+    list,
+    el("label", { class: "label", for: ta.id, text: "周复盘" }), ta, msg);
+}
+
+function renderPhases() {
+  const nav = document.getElementById("phases");
+  nav.replaceChildren(...PLAN.phases.map(p => {
+    const tasks = allTasks().filter(t => t.it.w[0] >= p.range[0] && t.it.w[0] <= p.range[1]);
+    const d = tasks.filter(t => state.done[t.id]).length;
+    return el("button", { class: "ph", type: "button", "aria-current": p === currentPhase ? "true" : "false",
+      onclick: () => document.getElementById("sec-" + p.id).scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }) },
+      el("b", { text: p.name.replace("｜", " ") }),
+      el("span", { class: "meta", text: `W${p.range[0]}–W${p.range[1]} · ${wkDate(p.range[0])}–${wkDate(p.range[1], true)}` }),
+      el("div", { class: "bar" }, el("i", { style: `width:${tasks.length ? d / tasks.length * 100 : 0}%` })),
+      el("span", { class: "meta", text: `${d}/${tasks.length}` }));
+  }));
+}
+
+function renderFilters() {
+  const f = document.getElementById("filters");
+  const chips = [null, ...TRACKS].map(k => el("button", { class: "chip", type: "button", "aria-pressed": state.filter === k ? "true" : "false",
+    text: k || "全部", onclick: () => { state.filter = k; renderFilters(); renderList(); } }));
+  const hide = el("input", { type: "checkbox", id: "hide-done" }); hide.checked = state.hideDone;
+  hide.addEventListener("change", () => { state.hideDone = hide.checked; renderList(); });
+  f.replaceChildren(...chips, el("label", { class: "toggle", for: "hide-done" }, hide, "隐藏已完成"));
+}
+
+function renderList() {
+  const main = document.getElementById("list");
+  const secs = PLAN.phases.map(p => {
+    const rows = PLAN.items.filter(it => it.w[0] >= p.range[0] && it.w[0] <= p.range[1]).map(it => {
+      const idx = it.tasks.map((t, i) => i).filter(i => (!state.filter || it.tasks[i][0] === state.filter) && !(state.hideDone && state.done[taskId(it, i)]));
+      if (!idx.length) return null;
+      const n = it.tasks.filter((t, i) => state.done[taskId(it, i)]).length;
+      const cur = it === currentItem;
+      const [ta, msg] = noteBox(it, "note-");
+      const note = el("details", { class: "note" }, el("summary", { text: state.notes[itemId(it)] ? "周复盘（已写）" : "写周复盘" }), ta, msg);
+      return el("article", { class: "wk" + (cur ? " current" : ""), id: "wk-" + itemId(it) },
+        el("div", { class: "wk-id" },
+          el("span", { class: "mono", text: weekLabel(it) }),
+          el("span", { class: "mono", text: `${wkDate(it.w[0])}–${wkDate(it.w[1], true)}` }),
+          cur ? el("span", { class: "here", text: "本周" }) : null),
+        el("div", { class: "wk-body" },
+          el("h3", {}, it.theme, el("span", { class: "count" + (n === it.tasks.length ? " all" : ""), text: `${n}/${it.tasks.length}` })),
+          el("ul", { class: "tasks" }, ...idx.map(i => taskRow(it, it.tasks[i], i))),
+          note));
+    }).filter(Boolean);
+    return el("section", { class: "phase-sec", id: "sec-" + p.id },
+      el("header", {}, el("h2", { text: p.name }), el("p", { text: "目标：" + p.goal }), el("p", { text: "验收：" + p.check })),
+      rows.length ? el("div", { class: "weeks" }, ...rows) : el("p", { class: "out", text: "这一阶段没有符合筛选条件的任务。" }));
+  });
+  main.replaceChildren(...secs);
+}
+
+function renderCerts() {
+  const box = document.getElementById("certs");
+  box.replaceChildren(...PLAN.certs.map(c => {
+    const got = !!(c.doneTask && state.done[c.doneTask]);
+    const name = c.link ? el("a", { href: PLAN.links[c.link][1], target: "_blank", rel: "noopener", style: "color:inherit;text-decoration:none" }, c.name + " ↗") : c.name;
+    return el("div", { class: "cert" + (got ? " got" : "") },
+      el("span", { class: "stamp", text: got ? "已考" : `第 ${PLAN.certs.indexOf(c) + 1} 张 · 待考` }),
+      el("b", {}, name),
+      el("span", { class: "when", text: c.when }),
+      el("span", { class: "fee", text: `${c.fee} · ${c.form}` }),
+      el("span", { class: "fee", text: c.why }));
+  }));
+  document.getElementById("opts").textContent = "已持有：" + PLAN.owned + "。三张 AI 证书加上 LOMA，是国际保险证书、国际 AI 证书和国内 AI 证书的组合。费用和时间以官网为准。";
+}
+
+function renderAll() { renderSummary(); renderNow(); renderCerts(); renderPhases(); renderList(); }
+
+/* ---------- writes ---------- */
+async function toggle(id, on) {
+  if (on) state.done[id] = new Date().toISOString(); else delete state.done[id];
+  saveLocal();
+  renderAll();
+  if (state.mode !== "db") return;
+  try {
+    const ref = db.collection("checks").doc(id);
+    if (on) await ref.set({ done: true, at: state.done[id] }); else await ref.delete();
+  } catch (e) { setSync("保存失败：" + (e && e.code === "invalid_argument" ? "你没有编辑权限。" : "网络或服务暂时不可用，稍后再勾一次。")); }
+}
+async function saveNote(key, text, msg) {
+  state.notes[key] = text; saveLocal();
+  if (state.mode !== "db") { msg.textContent = "已保存在本设备"; return; }
+  try {
+    const ref = db.collection("notes").doc(key);
+    if (text.trim()) await ref.set({ text, at: new Date().toISOString() }); else await ref.delete();
+    msg.textContent = "已保存";
+  } catch (e) { msg.textContent = "保存失败，请稍后再试"; }
+}
+function setSync(t) { document.getElementById("sync").textContent = t; }
+
+/* ---------- connect ---------- */
+async function connect() {
+  const fallback = (why) => { state.mode = "local"; setSync(why); };
+  if (!window.claude || typeof window.claude.use !== "function") return fallback("只保存在这台设备的浏览器里。");
+  try {
+    db = await window.claude.use("db");
+    const user = await window.claude.use("user");
+    if (!db) return fallback("云端保存不可用，进度只保存在这台设备的浏览器里。");
+    const owner = user ? await user.isOwner() : true;
+    state.canWrite = owner !== false;
+    state.mode = "db";
+    setSync(state.canWrite ? "进度自动保存到云端，换设备打开也在。" : "只读查看：只有看板主人可以勾选。");
+    db.collection("checks").onSnapshot(snap => {
+      const next = {};
+      snap.docs.forEach(d => { const v = d.data(); if (v && v.done) next[d.id] = v.at || true; });
+      state.done = next; saveLocal(); renderAll();
+    }, () => setSync("和云端的连接断开了，刷新页面可重连。"));
+    db.collection("notes").onSnapshot(snap => {
+      const next = {};
+      snap.docs.forEach(d => { const v = d.data(); if (v && v.text) next[d.id] = v.text; });
+      const active = document.activeElement && document.activeElement.tagName === "TEXTAREA";
+      state.notes = next; saveLocal(); if (!active) renderAll();
+    }, () => {});
+  } catch (e) { fallback("云端保存不可用，进度只保存在这台设备的浏览器里。"); }
+}
+
+loadLocal();
+renderFilters();
+renderAll();
+connect();
+</script>
 
-    <main>
-      <section class="page active" id="page-dashboard"></section>
-      <section class="page" id="page-plan"></section>
-      <section class="page" id="page-today"></section>
-      <section class="page" id="page-resources"></section>
-      <section class="page" id="page-settings"></section>
-    </main>
-  </div>
-
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-  <script>
-    const STORAGE_KEY = "aiStudyRoadmapProgress_v1";
-
-    const phases = [
-      {
-        id: "python",
-        order: 1,
-        title: "Python 零基础入门",
-        short: "Python",
-        weeks: "第 1-6 周",
-        targetHours: 42,
-        goal: "能独立写 Python 小程序、读懂报错、使用 Jupyter。",
-        output: "学习记账本或文件整理工具"
-      },
-      {
-        id: "data",
-        order: 2,
-        title: "数据分析与科学计算",
-        short: "数据",
-        weeks: "第 7-10 周",
-        targetHours: 28,
-        goal: "能用 NumPy、pandas 和可视化工具完成一次 EDA。",
-        output: "电商订单分析报告"
-      },
-      {
-        id: "math",
-        order: 3,
-        title: "AI 必备数学",
-        short: "数学",
-        weeks: "第 11-18 周",
-        targetHours: 56,
-        goal: "能理解矩阵、梯度、概率、优化和模型评估的核心直觉。",
-        output: "线性回归从零实现、SVD 图片压缩"
-      },
-      {
-        id: "ml",
-        order: 4,
-        title: "传统机器学习",
-        short: "机器学习",
-        weeks: "第 19-28 周",
-        targetHours: 70,
-        goal: "能用 scikit-learn 完成分类、回归、聚类、评估和误差分析。",
-        output: "房价预测、用户流失预测"
-      },
-      {
-        id: "dl",
-        order: 5,
-        title: "深度学习与 PyTorch",
-        short: "深度学习",
-        weeks: "第 29-42 周",
-        targetHours: 98,
-        goal: "能写训练循环、训练 CNN/MLP/简单 NLP 模型并分析 loss。",
-        output: "图像分类器、文本分类器"
-      },
-      {
-        id: "llm",
-        order: 6,
-        title: "现代 NLP、LLM、RAG 与 Agent",
-        short: "LLM",
-        weeks: "第 43-56 周",
-        targetHours: 98,
-        goal: "能构建可评估的 RAG 和工具调用 Agent。",
-        output: "个人知识库 RAG、数据分析 Agent"
-      },
-      {
-        id: "mlops",
-        order: 7,
-        title: "生产化与 MLOps",
-        short: "MLOps",
-        weeks: "第 57-72 周",
-        targetHours: 112,
-        goal: "能把模型变成可运行、可测试、可监控的服务。",
-        output: "可部署的 AI API 服务"
-      },
-      {
-        id: "expert",
-        order: 8,
-        title: "专家方向与长期深耕",
-        short: "专家",
-        weeks: "第 73 周以后",
-        targetHours: 160,
-        goal: "选择一个方向形成论文、系统和作品集深度。",
-        output: "论文复现、开源贡献、完整作品集"
-      }
-    ];
-
-    const resources = [
-      { id: "manual", category: "总览", title: "完整学习手册", desc: "本项目中的 Markdown 版学习手册。", url: "./AI小白到专家学习手册.md" },
-      { id: "cs50p", category: "Python", title: "Harvard CS50P", desc: "面向零基础的 Python 官方课程。", url: "https://cs50.harvard.edu/python/" },
-      { id: "cs50p-youtube", category: "Python", title: "CS50P YouTube 播放列表", desc: "CS50P 官方视频合集。", url: "https://www.youtube.com/playlist?list=PLhQjrBD2T3817j24-GogXmWqO5Q5vYy0V" },
-      { id: "python", category: "Python", title: "Python.org For Beginners", desc: "Python 官方入门入口。", url: "https://www.python.org/about/gettingstarted/" },
-      { id: "kaggle-python", category: "Python", title: "Kaggle Learn Python", desc: "适合快速动手的 Python 练习。", url: "https://www.kaggle.com/learn/python" },
-      { id: "pandas", category: "数据", title: "pandas 官方教程", desc: "DataFrame、清洗、筛选与聚合。", url: "https://pandas.pydata.org/docs/getting_started/intro_tutorials/index.html" },
-      { id: "kaggle-pandas", category: "数据", title: "Kaggle Learn Pandas", desc: "pandas 练习课。", url: "https://www.kaggle.com/learn/pandas" },
-      { id: "kaggle-viz", category: "数据", title: "Kaggle Data Visualization", desc: "数据可视化入门。", url: "https://www.kaggle.com/learn/data-visualization" },
-      { id: "mit-linear", category: "数学", title: "MIT 18.06 Linear Algebra", desc: "Gilbert Strang 线性代数视频课。", url: "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/video_galleries/video-lectures/" },
-      { id: "3b1b-linear", category: "数学", title: "3Blue1Brown 线性代数本质", desc: "建立线代几何直觉。", url: "https://www.youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr" },
-      { id: "3b1b-nn", category: "数学", title: "3Blue1Brown 神经网络", desc: "神经网络和反向传播直觉。", url: "https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi" },
-      { id: "khan-stats", category: "数学", title: "Khan Academy 统计与概率", desc: "概率统计基础。", url: "https://www.khanacademy.org/math/statistics-probability" },
-      { id: "statquest", category: "数学", title: "StatQuest 视频索引", desc: "机器学习和统计概念讲解。", url: "https://statquest.org/video_index.html" },
-      { id: "deeplearning-ml", category: "机器学习", title: "DeepLearning.AI ML Specialization", desc: "Andrew Ng 机器学习专项课程。", url: "https://www.deeplearning.ai/specializations/machine-learning/" },
-      { id: "google-mlcc", category: "机器学习", title: "Google ML Crash Course", desc: "Google 官方机器学习速成课。", url: "https://developers.google.com/machine-learning/crash-course" },
-      { id: "sklearn", category: "机器学习", title: "scikit-learn Getting Started", desc: "scikit-learn 官方入门。", url: "https://scikit-learn.org/stable/getting_started.html" },
-      { id: "kaggle-ml", category: "机器学习", title: "Kaggle Intro to Machine Learning", desc: "结构化数据建模练习。", url: "https://www.kaggle.com/learn/intro-to-machine-learning" },
-      { id: "cs229", category: "机器学习", title: "Stanford CS229", desc: "经典机器学习课程。", url: "https://cs229.stanford.edu/syllabus-summer2019.html" },
-      { id: "pytorch", category: "深度学习", title: "PyTorch 60 Minute Blitz", desc: "PyTorch 官方快速入门。", url: "https://docs.pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html" },
-      { id: "d2l", category: "深度学习", title: "动手学深度学习中文版", desc: "深度学习教材与代码。", url: "https://zh.d2l.ai/" },
-      { id: "fastai", category: "深度学习", title: "fast.ai Practical Deep Learning", desc: "实践优先的深度学习课程。", url: "https://course.fast.ai/" },
-      { id: "fastai-youtube", category: "深度学习", title: "fast.ai YouTube 播放列表", desc: "fast.ai 课程视频合集。", url: "https://www.youtube.com/playlist?list=PLfYUBJiXbdtSvpQjSnJJ_PmDQB_VyT5iU" },
-      { id: "karpathy", category: "深度学习", title: "Karpathy Neural Networks Zero to Hero", desc: "从零写神经网络和语言模型。", url: "https://github.com/karpathy/nn-zero-to-hero" },
-      { id: "hungyi", category: "深度学习", title: "李宏毅 2023 春机器学习", desc: "中文机器学习与深度学习课程。", url: "https://www.bilibili.com/video/BV1TD4y137mP/" },
-      { id: "hf-course", category: "LLM", title: "Hugging Face LLM/NLP Course", desc: "Transformers 与 NLP 应用。", url: "https://huggingface.co/course" },
-      { id: "hf-agents", category: "LLM", title: "Hugging Face Agents Course", desc: "Agent 概念与实践。", url: "https://huggingface.co/learn/agents-course" },
-      { id: "cs224n", category: "LLM", title: "Stanford CS224N", desc: "自然语言处理与深度学习。", url: "https://web.stanford.edu/class/cs224n/" },
-      { id: "cs25", category: "LLM", title: "Stanford CS25 Transformers United", desc: "Transformer 专题讲座。", url: "https://web.stanford.edu/class/cs25/" },
-      { id: "cs336", category: "LLM", title: "Stanford CS336 Language Modeling", desc: "从零理解语言模型。", url: "https://cs336.stanford.edu/" },
-      { id: "openai-quickstart", category: "LLM", title: "OpenAI API Quickstart", desc: "OpenAI API 官方快速开始。", url: "https://platform.openai.com/docs/quickstart" },
-      { id: "openai-prompt", category: "LLM", title: "OpenAI Prompt Engineering", desc: "提示词工程官方指南。", url: "https://platform.openai.com/docs/guides/prompt-engineering" },
-      { id: "openai-agents", category: "LLM", title: "OpenAI Agents Guide", desc: "Agent 构建官方指南。", url: "https://platform.openai.com/docs/guides/agents" },
-      { id: "fSDL", category: "MLOps", title: "Full Stack Deep Learning", desc: "端到端深度学习工程课程。", url: "https://fullstackdeeplearning.com/course/2022/" },
-      { id: "madewithml", category: "MLOps", title: "Made With ML MLOps", desc: "模型生产化与 MLOps。", url: "https://madewithml.com/courses/mlops/" },
-      { id: "nist", category: "治理", title: "NIST AI Risk Management Framework", desc: "AI 风险管理框架。", url: "https://www.nist.gov/itl/ai-risk-management-framework" },
-      { id: "aiindex", category: "治理", title: "Stanford HAI AI Index", desc: "AI 行业年度报告。", url: "https://hai.stanford.edu/ai-index/2026-ai-index-report" }
-    ];
-
-    const tasks = [
-      task("py-01", "python", "安装 Python、VS Code、JupyterLab", "跑通终端和第一个 .py 文件。", 3, "环境", ["python"]),
-      task("py-02", "python", "完成 CS50P Week 0", "掌握输入、输出、变量和基础表达式。", 4, "课程", ["cs50p", "cs50p-youtube"]),
-      task("py-03", "python", "条件语句与循环", "写 BMI 计算器和猜数字游戏。", 5, "练习", ["cs50p"]),
-      task("py-04", "python", "列表、字典和函数", "把重复逻辑拆成函数，完成 10 个小练习。", 5, "练习", ["kaggle-python"]),
-      task("py-05", "python", "联系人管理程序", "支持新增、查询、修改和删除。", 5, "项目", []),
-      task("py-06", "python", "文件读写与异常处理", "读取 CSV 成绩文件，输出均值、最高分和最低分。", 5, "练习", ["python"]),
-      task("py-07", "python", "模块、包和基础面向对象", "写一个类并拆分成多个文件。", 5, "课程", ["cs50p"]),
-      task("py-08", "python", "阶段项目：学习记账本", "保存学习日期、主题、时长和完成内容，按周汇总。", 5, "项目", []),
-      task("py-09", "python", "阶段项目：文件整理工具", "支持预览模式，按文件后缀整理文件夹。", 5, "项目", []),
-
-      task("data-01", "data", "Jupyter 与 NumPy 基础", "掌握数组、切片、广播和向量化计算。", 4, "工具", ["kaggle-python"]),
-      task("data-02", "data", "pandas DataFrame 入门", "读取 CSV，查看列类型，完成筛选、排序、分组。", 5, "课程", ["pandas", "kaggle-pandas"]),
-      task("data-03", "data", "缺失值、重复值、异常值处理", "记录每一种清洗选择背后的理由。", 4, "练习", ["pandas"]),
-      task("data-04", "data", "groupby、merge、pivot_table", "用一个真实数据集做聚合和多表合并。", 5, "练习", ["kaggle-pandas"]),
-      task("data-05", "data", "matplotlib / seaborn 可视化", "画出趋势、分布、对比和相关性图。", 4, "工具", ["kaggle-viz"]),
-      task("data-06", "data", "SQL 基础", "掌握 SELECT、WHERE、GROUP BY、JOIN。", 3, "工具", []),
-      task("data-07", "data", "阶段项目：电商订单分析", "输出销售额、客单价、城市分布、热销商品和复购用户。", 8, "项目", []),
-
-      task("math-01", "math", "线性代数直觉", "向量、矩阵、点积、矩阵乘法和线性变换。", 6, "课程", ["mit-linear", "3b1b-linear"]),
-      task("math-02", "math", "NumPy 矩阵练习", "写转置、逆矩阵、特征值分解和矩阵乘法练习。", 4, "练习", ["mit-linear"]),
-      task("math-03", "math", "最小二乘与线性回归", "用 NumPy 拟合一条直线。", 5, "练习", ["3b1b-linear"]),
-      task("math-04", "math", "SVD 图片压缩", "用奇异值分解压缩一张灰度图。", 5, "项目", ["mit-linear"]),
-      task("math-05", "math", "微积分与链式法则", "理解导数、偏导、梯度和链式法则。", 6, "课程", ["3b1b-nn"]),
-      task("math-06", "math", "手写梯度下降", "画出学习率过大、过小和合适时的 loss 曲线。", 6, "练习", ["statquest"]),
-      task("math-07", "math", "概率与统计基础", "随机变量、条件概率、贝叶斯公式、常见分布。", 7, "课程", ["khan-stats", "statquest"]),
-      task("math-08", "math", "最大似然与朴素贝叶斯", "用 Python 写一个简易文本分类器。", 6, "项目", ["statquest"]),
-      task("math-09", "math", "数学阶段复盘", "解释矩阵、梯度、过拟合、训练/验证/测试集。", 3, "复盘", []),
-
-      task("ml-01", "ml", "scikit-learn 基础工作流", "掌握 fit、predict、score 和 train_test_split。", 5, "工具", ["sklearn", "kaggle-ml"]),
-      task("ml-02", "ml", "回归与分类 baseline", "用线性回归和逻辑回归建立基线。", 6, "练习", ["deeplearning-ml"]),
-      task("ml-03", "ml", "Pipeline 与数据泄漏", "把预处理和模型放进 Pipeline。", 5, "工程", ["sklearn"]),
-      task("ml-04", "ml", "树模型与集成学习", "对比决策树、随机森林和梯度提升树。", 7, "模型", ["google-mlcc"]),
-      task("ml-05", "ml", "评估指标", "混淆矩阵、Precision、Recall、F1、ROC-AUC。", 6, "评估", ["google-mlcc", "statquest"]),
-      task("ml-06", "ml", "交叉验证与调参", "使用交叉验证和网格搜索。", 6, "评估", ["sklearn"]),
-      task("ml-07", "ml", "特征工程", "标准化、类别编码、特征组合和类别不平衡处理。", 6, "工程", ["kaggle-ml"]),
-      task("ml-08", "ml", "无监督学习", "K-means、PCA 和聚类结果解释。", 5, "模型", ["cs229"]),
-      task("ml-09", "ml", "阶段项目：房价预测", "EDA、baseline、模型对比、误差分析。", 10, "项目", []),
-      task("ml-10", "ml", "阶段项目：用户流失预测", "处理类别不平衡，输出业务干预建议。", 10, "项目", []),
-
-      task("dl-01", "dl", "PyTorch Tensor 与 autograd", "理解张量、计算图和自动求导。", 6, "工具", ["pytorch", "d2l"]),
-      task("dl-02", "dl", "PyTorch 线性回归训练循环", "写训练、验证、保存模型的最小版本。", 6, "练习", ["pytorch"]),
-      task("dl-03", "dl", "MLP 做 MNIST 分类", "记录 loss 和 accuracy，尝试不同学习率。", 8, "项目", ["d2l"]),
-      task("dl-04", "dl", "CNN 与图像分类", "完成 CIFAR-10 或猫狗分类。", 10, "模型", ["d2l", "fastai"]),
-      task("dl-05", "dl", "数据增强与迁移学习", "用预训练模型完成小样本图像分类。", 8, "工程", ["fastai", "fastai-youtube"]),
-      task("dl-06", "dl", "Embedding、RNN 与文本分类", "做情感分析或垃圾短信分类。", 9, "模型", ["d2l"]),
-      task("dl-07", "dl", "训练技巧", "早停、权重衰减、学习率调度、实验记录。", 7, "工程", ["pytorch"]),
-      task("dl-08", "dl", "从零写小神经网络", "不使用 autograd，手写前向、反向和梯度更新。", 12, "项目", ["karpathy"]),
-      task("dl-09", "dl", "阶段项目：图像分类器", "迁移学习、混淆矩阵、错误样本分析和部署方案。", 14, "项目", ["fastai"]),
-      task("dl-10", "dl", "深度学习阶段复盘", "解释反向传播、Batch size、Dropout 和 loss 不下降。", 5, "复盘", ["hungyi"]),
-
-      task("llm-01", "llm", "Token、Embedding、Attention", "建立 Transformer 输入输出直觉。", 7, "基础", ["hf-course", "cs25"]),
-      task("llm-02", "llm", "手写 self-attention", "用小矩阵实现一个最小 self-attention。", 8, "练习", ["cs336"]),
-      task("llm-03", "llm", "Transformers 文本分类", "使用 tokenizer、model 和 trainer。", 8, "工具", ["hf-course"]),
-      task("llm-04", "llm", "Prompt 与结构化输出", "比较 zero-shot、few-shot 和 JSON 输出。", 6, "工程", ["openai-prompt", "openai-quickstart"]),
-      task("llm-05", "llm", "第一个 RAG", "用 20-50 篇文档构建知识库，答案必须带来源。", 12, "项目", ["hf-course", "openai-quickstart"]),
-      task("llm-06", "llm", "RAG 评估集", "建立 50 条问题，记录准确率、引用正确率、拒答正确率。", 10, "评估", ["openai-prompt"]),
-      task("llm-07", "llm", "重排、查询改写和引用校验", "定位质量问题来自检索、提示词、模型还是数据。", 9, "工程", ["cs224n"]),
-      task("llm-08", "llm", "工具调用 Agent", "让模型调用计算器、搜索、数据库或本地函数。", 12, "项目", ["openai-agents", "hf-agents"]),
-      task("llm-09", "llm", "LLM 系统优化", "缓存、并发、流式输出、成本和延迟控制。", 8, "工程", ["openai-quickstart"]),
-      task("llm-10", "llm", "阶段项目：个人知识库 RAG 助手", "PDF/Markdown/TXT、引用、拒答、日志和测试集。", 14, "项目", []),
-      task("llm-11", "llm", "阶段项目：数据分析 Agent", "上传 CSV、生成计划、执行 pandas、输出图表和日志。", 14, "项目", ["openai-agents"]),
-
-      task("mlops-01", "mlops", "GitHub 作品集结构", "整理 README、requirements、src、tests、reports。", 5, "工程", []),
-      task("mlops-02", "mlops", "FastAPI 推理服务", "把一个模型封装为 HTTP API。", 10, "工程", ["fSDL"]),
-      task("mlops-03", "mlops", "Docker 基础", "写 Dockerfile 并本地运行服务。", 8, "工程", ["madewithml"]),
-      task("mlops-04", "mlops", "测试与配置", "加入单元测试、配置文件和日志。", 8, "工程", ["madewithml"]),
-      task("mlops-05", "mlops", "实验管理", "记录参数、指标、版本和模型文件。", 8, "工程", ["fSDL"]),
-      task("mlops-06", "mlops", "模型监控方案", "设计线上指标、数据漂移、错误样本回收。", 8, "评估", ["madewithml"]),
-      task("mlops-07", "mlops", "部署与回滚", "部署一个可访问的 API，并写回滚方案。", 12, "项目", ["fSDL"]),
-      task("mlops-08", "mlops", "LLM 应用评估流水线", "把离线评估、线上日志、版本对比串起来。", 12, "项目", ["openai-prompt"]),
-      task("mlops-09", "mlops", "端到端 AI 服务项目", "API、Docker、测试、文档、演示全部齐全。", 18, "项目", ["fSDL", "madewithml"]),
-
-      task("expert-01", "expert", "选择专家方向", "从 LLM、CV、推荐、RL、MLOps、安全治理中选一个主方向。", 4, "决策", []),
-      task("expert-02", "expert", "建立论文阅读节奏", "每周精读 1 篇，按问题、方法、实验、局限写笔记。", 12, "研究", ["cs224n", "cs336"]),
-      task("expert-03", "expert", "复现一篇论文的最小版本", "实现核心想法，不追求完整大规模实验。", 24, "研究", []),
-      task("expert-04", "expert", "做一个真实问题项目", "使用真实数据、真实约束和明确指标。", 30, "项目", []),
-      task("expert-05", "expert", "开源贡献", "提交文档、bugfix、示例或小功能 PR。", 16, "工程", []),
-      task("expert-06", "expert", "系统性评估报告", "写清数据、方法、指标、风险、失败样本和下一步。", 16, "评估", ["nist", "aiindex"]),
-      task("expert-07", "expert", "作品集答辩", "录制一次 10-15 分钟项目讲解。", 8, "作品集", []),
-      task("expert-08", "expert", "长期方向路线图", "为下一个 6 个月制定论文、项目和工程计划。", 6, "规划", [])
-    ];
-
-    let currentPage = "dashboard";
-    let planPhase = "all";
-    let planStatus = "all";
-    let resourceCategory = "all";
-
-    function task(id, phase, title, detail, hours, type, resourceIds) {
-      return { id, phase, title, detail, hours, type, resourceIds };
-    }
-
-    function defaultState() {
-      return {
-        done: {},
-        completedAt: {},
-        logs: {},
-        settings: {
-          weeklyHours: 10,
-          startDate: new Date().toISOString().slice(0, 10)
-        }
-      };
-    }
-
-    function loadState() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        return mergeState(defaultState(), saved || {});
-      } catch (error) {
-        return defaultState();
-      }
-    }
-
-    function mergeState(base, incoming) {
-      return {
-        done: incoming.done || base.done,
-        completedAt: incoming.completedAt || base.completedAt,
-        logs: incoming.logs || base.logs,
-        settings: Object.assign({}, base.settings, incoming.settings || {})
-      };
-    }
-
-    let state = loadState();
-
-    const $ = (selector) => document.querySelector(selector);
-    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    function phaseById(id) {
-      return phases.find((phase) => phase.id === id);
-    }
-
-    function resourceById(id) {
-      return resources.find((resource) => resource.id === id);
-    }
-
-    function phaseTasks(phaseId) {
-      return tasks.filter((item) => item.phase === phaseId);
-    }
-
-    function doneTasks() {
-      return tasks.filter((item) => state.done[item.id]);
-    }
-
-    function pct(done, total) {
-      if (!total) return 0;
-      return Math.round((done / total) * 100);
-    }
-
-    function phaseProgress(phaseId) {
-      const list = phaseTasks(phaseId);
-      const done = list.filter((item) => state.done[item.id]).length;
-      const totalHours = list.reduce((sum, item) => sum + item.hours, 0);
-      const doneHours = list.filter((item) => state.done[item.id]).reduce((sum, item) => sum + item.hours, 0);
-      return { done, total: list.length, pct: pct(done, list.length), doneHours, totalHours };
-    }
-
-    function overallProgress() {
-      const done = doneTasks().length;
-      const total = tasks.length;
-      const doneHours = doneTasks().reduce((sum, item) => sum + item.hours, 0);
-      const totalHours = tasks.reduce((sum, item) => sum + item.hours, 0);
-      return { done, total, pct: pct(done, total), doneHours, totalHours };
-    }
-
-    function currentPhaseData() {
-      return phases.find((phase) => phaseProgress(phase.id).pct < 100) || phases[phases.length - 1];
-    }
-
-    function nextTask() {
-      return tasks.find((item) => !state.done[item.id]) || null;
-    }
-
-    function todayKey() {
-      return new Date().toISOString().slice(0, 10);
-    }
-
-    function daysBetween(a, b) {
-      const start = new Date(a + "T00:00:00");
-      const end = new Date(b + "T00:00:00");
-      return Math.round((end - start) / 86400000);
-    }
-
-    function learnedMinutesTotal() {
-      return Object.values(state.logs).reduce((sum, log) => sum + Number(log.minutes || 0), 0);
-    }
-
-    function streakDays() {
-      let count = 0;
-      const cursor = new Date();
-      while (true) {
-        const key = cursor.toISOString().slice(0, 10);
-        if (!state.logs[key] || Number(state.logs[key].minutes || 0) <= 0) break;
-        count += 1;
-        cursor.setDate(cursor.getDate() - 1);
-      }
-      return count;
-    }
-
-    function htmlEscape(value) {
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function icon(name) {
-      const icons = {
-        check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg>',
-        external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>',
-        save: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>',
-        download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>',
-        upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>',
-        trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>',
-        search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
-        play: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3Z"/></svg>',
-        arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
-      };
-      return icons[name] || "";
-    }
-
-    function setPage(page) {
-      currentPage = page;
-      $$(".page").forEach((item) => item.classList.toggle("active", item.id === `page-${page}`));
-      $$(".nav-btn").forEach((item) => item.classList.toggle("active", item.dataset.page === page));
-      renderCurrentPage();
-      window.scrollTo({ top: 0, behavior: "instant" });
-    }
-
-    function renderHeader() {
-      const overall = overallProgress();
-      const phase = currentPhaseData();
-      $("#overallPct").textContent = `${overall.pct}%`;
-      $("#overallCount").textContent = `${overall.done} / ${overall.total} 项`;
-      $("#overallBar").style.width = `${overall.pct}%`;
-      $("#stagePill").textContent = `第 ${phase.order} 阶段`;
-    }
-
-    function renderCurrentPage() {
-      renderHeader();
-      if (currentPage === "dashboard") renderDashboard();
-      if (currentPage === "plan") renderPlan();
-      if (currentPage === "today") renderToday();
-      if (currentPage === "resources") renderResources();
-      if (currentPage === "settings") renderSettings();
-    }
-
-    function renderDashboard() {
-      const overall = overallProgress();
-      const phase = currentPhaseData();
-      const phaseStat = phaseProgress(phase.id);
-      const next = nextTask();
-      const days = Math.max(1, daysBetween(state.settings.startDate, todayKey()) + 1);
-      const learnedHours = learnedMinutesTotal() / 60;
-      const expectedHours = (days / 7) * Number(state.settings.weeklyHours || 10);
-      const speed = expectedHours ? Math.round((learnedHours / expectedHours) * 100) : 0;
-
-      $("#page-dashboard").innerHTML = `
-        <div class="grid stats-grid">
-          ${metric("完成任务", `${overall.done}/${overall.total}`, `${overall.doneHours} / ${overall.totalHours} 小时`)}
-          ${metric("当前阶段", phase.short, `${phaseStat.done}/${phaseStat.total} 项 · ${phaseStat.pct}%`)}
-          ${metric("累计学习", `${Math.round(learnedHours * 10) / 10}h`, `按打卡记录统计`)}
-          ${metric("连续打卡", `${streakDays()} 天`, `节奏参考 ${speed}%`)}
-        </div>
-
-        <div class="section-head">
-          <h2 class="section-title">当前推进</h2>
-          <button class="tiny-link" type="button" data-jump="plan">查看路线</button>
-        </div>
-        <div class="card current-card">
-          <div class="ring" style="--ring:${phaseStat.pct * 3.6}deg">
-            <div class="ring-inner">${phaseStat.pct}%</div>
-          </div>
-          <div>
-            <h3 class="card-title">${htmlEscape(phase.title)}</h3>
-            <p class="card-text">${htmlEscape(phase.goal)}</p>
-            <div class="meta-line">
-              <span class="tag primary">${phase.weeks}</span>
-              <span class="tag">${phaseStat.doneHours}/${phaseStat.totalHours} 小时</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="section-head">
-          <h2 class="section-title">下一步</h2>
-          <button class="tiny-link" type="button" data-jump="today">今日打卡</button>
-        </div>
-        ${next ? taskCard(next, { compact: true, showLinks: true }) : doneAllCard()}
-
-        <div class="section-head">
-          <h2 class="section-title">阶段总览</h2>
-        </div>
-        ${phases.map(phaseCard).join("")}
-      `;
-    }
-
-    function metric(label, value, hint) {
-      return `
-        <div class="card metric">
-          <div class="metric-label">${htmlEscape(label)}</div>
-          <div class="metric-value">${htmlEscape(value)}</div>
-          <div class="metric-hint">${htmlEscape(hint)}</div>
-        </div>
-      `;
-    }
-
-    function phaseCard(phase) {
-      const stat = phaseProgress(phase.id);
-      return `
-        <article class="phase-card">
-          <div class="phase-top">
-            <div>
-              <h3 class="phase-title">${phase.order}. ${htmlEscape(phase.title)}</h3>
-              <div class="phase-meta">${htmlEscape(phase.weeks)} · ${htmlEscape(phase.output)}</div>
-            </div>
-            <div class="phase-pct">${stat.pct}%</div>
-          </div>
-          <div class="thin-bar"><span style="width:${stat.pct}%"></span></div>
-        </article>
-      `;
-    }
-
-    function renderPlan() {
-      const phaseOptions = [{ id: "all", short: "全部" }].concat(phases);
-      const search = $("#planSearch") ? $("#planSearch").value.trim().toLowerCase() : "";
-      let list = tasks.slice();
-      if (planPhase !== "all") list = list.filter((item) => item.phase === planPhase);
-      if (planStatus === "todo") list = list.filter((item) => !state.done[item.id]);
-      if (planStatus === "done") list = list.filter((item) => state.done[item.id]);
-      if (search) {
-        list = list.filter((item) =>
-          [item.title, item.detail, item.type, phaseById(item.phase).title].join(" ").toLowerCase().includes(search)
-        );
-      }
-
-      $("#page-plan").innerHTML = `
-        <div class="search-box">
-          ${icon("search")}
-          <input class="search-input" id="planSearch" type="search" placeholder="搜索任务、阶段或类型" value="${htmlEscape(search)}">
-        </div>
-        <div class="filter-row">
-          ${phaseOptions.map((phase) => `<button class="filter-btn ${planPhase === phase.id ? "active" : ""}" type="button" data-phase="${phase.id}">${htmlEscape(phase.short)}</button>`).join("")}
-        </div>
-        <div class="chip-row">
-          ${statusButton("all", "全部")}
-          ${statusButton("todo", "未完成")}
-          ${statusButton("done", "已完成")}
-        </div>
-        <div class="task-list">
-          ${list.length ? list.map((item) => taskCard(item, { showLinks: true })).join("") : empty("没有匹配的学习任务")}
-        </div>
-      `;
-      $("#planSearch").addEventListener("input", renderPlan);
-    }
-
-    function statusButton(id, label) {
-      return `<button class="chip ${planStatus === id ? "active" : ""}" type="button" data-status="${id}">${label}</button>`;
-    }
-
-    function taskCard(item, options = {}) {
-      const done = Boolean(state.done[item.id]);
-      const phase = phaseById(item.phase);
-      const links = (item.resourceIds || []).map(resourceById).filter(Boolean);
-      return `
-        <article class="task-card ${done ? "done" : ""}">
-          <button class="check-btn" type="button" data-task="${item.id}" aria-label="${done ? "标记未完成" : "标记完成"}">
-            ${done ? icon("check") : ""}
-          </button>
-          <div>
-            <div class="task-title">${htmlEscape(item.title)}</div>
-            <div class="task-detail">${htmlEscape(item.detail)}</div>
-            <div class="meta-line">
-              <span class="tag primary">${htmlEscape(phase.short)}</span>
-              <span class="tag">${htmlEscape(item.type)}</span>
-              <span class="tag warn">${item.hours} 小时</span>
-            </div>
-            ${options.showLinks && links.length ? `
-              <div class="task-links">
-                ${links.slice(0, options.compact ? 2 : 4).map((resource) => `
-                  <a class="link-btn" href="${resource.url}" target="_blank" rel="noopener">${icon("external")}<span>${htmlEscape(resource.title)}</span></a>
-                `).join("")}
-              </div>
-            ` : ""}
-          </div>
-        </article>
-      `;
-    }
-
-    function doneAllCard() {
-      return `
-        <div class="card">
-          <h3 class="card-title">所有任务已完成</h3>
-          <p class="card-text">现在可以进入更深的专家方向，持续做论文复现、真实项目和开源贡献。</p>
-        </div>
-      `;
-    }
-
-    function renderToday() {
-      const key = todayKey();
-      const log = state.logs[key] || { minutes: "", note: "" };
-      const next = nextTask();
-      const recent = Object.entries(state.logs)
-        .filter(([, value]) => Number(value.minutes || 0) > 0 || (value.note || "").trim())
-        .sort((a, b) => b[0].localeCompare(a[0]))
-        .slice(0, 7);
-
-      $("#page-today").innerHTML = `
-        <div class="card">
-          <h2 class="card-title">${new Date().toLocaleDateString("zh-CN", { month: "long", day: "numeric", weekday: "long" })}</h2>
-          <p class="card-text">本周目标 ${state.settings.weeklyHours} 小时 · 当前连续 ${streakDays()} 天</p>
-          <div class="form-grid" style="margin-top:12px">
-            <label>
-              <span class="field-label">学习时长（分钟）</span>
-              <input class="field" id="todayMinutes" type="number" min="0" step="5" value="${htmlEscape(log.minutes || "")}">
-            </label>
-            <label>
-              <span class="field-label">今日笔记</span>
-              <textarea class="textarea" id="todayNote" placeholder="写下今天学了什么、卡在哪里、明天做什么">${htmlEscape(log.note || "")}</textarea>
-            </label>
-          </div>
-          <div class="button-row">
-            <button class="action-btn" type="button" data-action="save-log">${icon("save")}<span>保存打卡</span></button>
-            ${next ? `<button class="action-btn secondary" type="button" data-action="finish-next">${icon("check")}<span>完成下一项</span></button>` : ""}
-          </div>
-        </div>
-
-        <div class="section-head">
-          <h2 class="section-title">下一项任务</h2>
-          <button class="tiny-link" type="button" data-jump="plan">全部任务</button>
-        </div>
-        ${next ? taskCard(next, { showLinks: true }) : doneAllCard()}
-
-        <div class="section-head">
-          <h2 class="section-title">最近打卡</h2>
-        </div>
-        ${recent.length ? recent.map(([date, item]) => `
-          <article class="log-card">
-            <div class="log-date">${date} · ${Number(item.minutes || 0)} 分钟</div>
-            ${item.note ? `<div class="log-note">${htmlEscape(item.note)}</div>` : ""}
-          </article>
-        `).join("") : empty("还没有打卡记录")}
-      `;
-    }
-
-    function renderResources() {
-      const categories = ["all"].concat(Array.from(new Set(resources.map((item) => item.category))));
-      const search = $("#resourceSearch") ? $("#resourceSearch").value.trim().toLowerCase() : "";
-      let list = resources.slice();
-      if (resourceCategory !== "all") list = list.filter((item) => item.category === resourceCategory);
-      if (search) {
-        list = list.filter((item) => [item.title, item.desc, item.category].join(" ").toLowerCase().includes(search));
-      }
-
-      $("#page-resources").innerHTML = `
-        <div class="search-box">
-          ${icon("search")}
-          <input class="search-input" id="resourceSearch" type="search" placeholder="搜索课程、视频或文档" value="${htmlEscape(search)}">
-        </div>
-        <div class="filter-row">
-          ${categories.map((category) => `
-            <button class="filter-btn ${resourceCategory === category ? "active" : ""}" type="button" data-resource-category="${category}">
-              ${category === "all" ? "全部" : htmlEscape(category)}
-            </button>
-          `).join("")}
-        </div>
-        <div>
-          ${list.length ? list.map((item) => `
-            <article class="resource-card">
-              <div class="resource-top">
-                <div>
-                  <h3 class="resource-title">${htmlEscape(item.title)}</h3>
-                  <p class="resource-desc">${htmlEscape(item.desc)}</p>
-                </div>
-                <span class="tag primary">${htmlEscape(item.category)}</span>
-              </div>
-              <a class="link-btn" href="${item.url}" target="_blank" rel="noopener">${icon("external")}<span>打开资源</span></a>
-            </article>
-          `).join("") : empty("没有匹配的资源")}
-        </div>
-      `;
-      $("#resourceSearch").addEventListener("input", renderResources);
-    }
-
-    function renderSettings() {
-      $("#page-settings").innerHTML = `
-        <div class="card">
-          <h2 class="card-title">学习节奏</h2>
-          <div class="form-grid" style="margin-top:12px">
-            <label>
-              <span class="field-label">每周目标小时数</span>
-              <input class="field" id="weeklyHours" type="number" min="1" max="80" step="1" value="${htmlEscape(state.settings.weeklyHours)}">
-            </label>
-            <label>
-              <span class="field-label">开始日期</span>
-              <input class="field" id="startDate" type="date" value="${htmlEscape(state.settings.startDate)}">
-            </label>
-          </div>
-          <div class="button-row">
-            <button class="action-btn" type="button" data-action="save-settings">${icon("save")}<span>保存设置</span></button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2 class="card-title">进度备份</h2>
-          <p class="card-text">进度保存在当前浏览器。跨设备使用时，先导出，再在另一台设备导入。</p>
-          <div class="button-row">
-            <button class="ghost-btn" type="button" data-action="export">${icon("download")}<span>导出</span></button>
-            <label class="ghost-btn" for="importFile">${icon("upload")}<span>导入</span></label>
-            <input class="sr-only" id="importFile" type="file" accept="application/json,.json">
-            <button class="action-btn danger" type="button" data-action="reset">${icon("trash")}<span>重置</span></button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2 class="card-title">项目文件</h2>
-          <p class="card-text">当前网页适合直接上传到 GitHub Pages，入口文件是 index.html。</p>
-          <div class="task-links">
-            <a class="link-btn" href="./AI小白到专家学习手册.md" target="_blank" rel="noopener">${icon("external")}<span>学习手册</span></a>
-            <a class="link-btn" href="./README.md" target="_blank" rel="noopener">${icon("external")}<span>README</span></a>
-          </div>
-        </div>
-      `;
-      $("#importFile").addEventListener("change", importProgress);
-    }
-
-    function empty(text) {
-      return `<div class="empty">${htmlEscape(text)}</div>`;
-    }
-
-    function toggleTask(id) {
-      if (state.done[id]) {
-        delete state.done[id];
-        delete state.completedAt[id];
-        toast("已取消完成");
-      } else {
-        state.done[id] = true;
-        state.completedAt[id] = new Date().toISOString();
-        toast("已标记完成");
-      }
-      saveState();
-      renderCurrentPage();
-    }
-
-    function saveTodayLog() {
-      const key = todayKey();
-      const minutes = Number($("#todayMinutes").value || 0);
-      const note = $("#todayNote").value.trim();
-      state.logs[key] = { minutes, note, updatedAt: new Date().toISOString() };
-      saveState();
-      toast("打卡已保存");
-      renderCurrentPage();
-    }
-
-    function finishNextTask() {
-      const next = nextTask();
-      if (!next) return;
-      state.done[next.id] = true;
-      state.completedAt[next.id] = new Date().toISOString();
-      saveState();
-      toast("下一项已完成");
-      renderCurrentPage();
-    }
-
-    function saveSettings() {
-      state.settings.weeklyHours = Number($("#weeklyHours").value || 10);
-      state.settings.startDate = $("#startDate").value || todayKey();
-      saveState();
-      toast("设置已保存");
-      renderCurrentPage();
-    }
-
-    function exportProgress() {
-      const payload = {
-        app: "AI小白成长之路",
-        version: 1,
-        exportedAt: new Date().toISOString(),
-        state
-      };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `ai-study-progress-${todayKey()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast("进度已导出");
-    }
-
-    function importProgress(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const payload = JSON.parse(reader.result);
-          state = mergeState(defaultState(), payload.state || payload);
-          saveState();
-          toast("进度已导入");
-          renderCurrentPage();
-        } catch (error) {
-          toast("导入失败");
-        }
-      };
-      reader.readAsText(file);
-      event.target.value = "";
-    }
-
-    function resetProgress() {
-      if (!confirm("确定要重置所有进度和打卡记录吗？")) return;
-      state = defaultState();
-      saveState();
-      toast("进度已重置");
-      renderCurrentPage();
-    }
-
-    function toast(text) {
-      const node = $("#toast");
-      node.textContent = text;
-      node.classList.add("show");
-      window.clearTimeout(toast.timer);
-      toast.timer = window.setTimeout(() => node.classList.remove("show"), 1600);
-    }
-
-    document.addEventListener("click", (event) => {
-      const nav = event.target.closest("[data-page]");
-      if (nav) {
-        setPage(nav.dataset.page);
-        return;
-      }
-
-      const jump = event.target.closest("[data-jump]");
-      if (jump) {
-        setPage(jump.dataset.jump);
-        return;
-      }
-
-      const taskBtn = event.target.closest("[data-task]");
-      if (taskBtn) {
-        toggleTask(taskBtn.dataset.task);
-        return;
-      }
-
-      const phaseBtn = event.target.closest("[data-phase]");
-      if (phaseBtn) {
-        planPhase = phaseBtn.dataset.phase;
-        renderPlan();
-        return;
-      }
-
-      const statusBtn = event.target.closest("[data-status]");
-      if (statusBtn) {
-        planStatus = statusBtn.dataset.status;
-        renderPlan();
-        return;
-      }
-
-      const resourceBtn = event.target.closest("[data-resource-category]");
-      if (resourceBtn) {
-        resourceCategory = resourceBtn.dataset.resourceCategory;
-        renderResources();
-        return;
-      }
-
-      const action = event.target.closest("[data-action]");
-      if (!action) return;
-      const name = action.dataset.action;
-      if (name === "save-log") saveTodayLog();
-      if (name === "finish-next") finishNextTask();
-      if (name === "save-settings") saveSettings();
-      if (name === "export") exportProgress();
-      if (name === "reset") resetProgress();
-    });
-
-    renderCurrentPage();
-  </script>
 </body>
 </html>
