@@ -4,424 +4,461 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>保险×AI 成长看板</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;800&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 body { margin: 0; }
-/* Layout: a policy-schedule ledger. Summary band on top (progress + this week), phase timeline, then week rows like numbered policy lines. */
+/* Layout: iOS-style single column (Today large title, week strip, rings card, inset grouped task list), with a 全年 tab for the overview. */
 :root {
-  --bg: #f3f6f7;
-  --paper: #ffffff;
-  --ink: #142a3a;
-  --muted: #5b6e7b;
-  --line: #d8e1e6;
-  --accent: #0f5c7a;
-  --accent-soft: #e2eef3;
-  --done: #2f7d5b;
-  --done-soft: #e3f1ea;
-  --t-tech: #2d5fa8;
-  --t-biz: #9a5b13;
-  --t-ground: #6b4aa0;
-  --t-work: #1f7a74;
-  --t-review: #6a737b;
-  --display: "Noto Serif SC", "Songti SC", "STSong", serif;
-  --body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --fill: #f2f2f7;
+  --text: #1d1d1f;
+  --text2: #6e6e73;
+  --text3: #aeaeb2;
+  --sep: rgba(60, 60, 67, 0.14);
+  --blue: #007aff;
+  --green: #34c759;
+  --orange: #ff9500;
+  --purple: #af52de;
+  --pink: #ff2d55;
+  --gray: #8e8e93;
+  --track: rgba(120, 120, 128, 0.14);
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05);
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  --round: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f1a21; --paper: #16242d; --ink: #e3ecf0; --muted: #93a6b2; --line: #2a3b46;
-    --accent: #6cb8d6; --accent-soft: #1b3442; --done: #6cc79d; --done-soft: #183428;
-    --t-tech: #86aef0; --t-biz: #e0a861; --t-ground: #b79ae6; --t-work: #6fcac2; --t-review: #a3adb5;
-    color-scheme: dark;
+    --bg: #000000; --card: #1c1c1e; --fill: #2c2c2e; --text: #f5f5f7; --text2: #98989d; --text3: #636366;
+    --sep: rgba(84, 84, 88, 0.6); --blue: #0a84ff; --green: #30d158; --orange: #ff9f0a; --purple: #bf5af2;
+    --pink: #ff375f; --gray: #8e8e93; --track: rgba(120, 120, 128, 0.32); --shadow: none; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0f1a21; --paper: #16242d; --ink: #e3ecf0; --muted: #93a6b2; --line: #2a3b46;
-  --accent: #6cb8d6; --accent-soft: #1b3442; --done: #6cc79d; --done-soft: #183428;
-  --t-tech: #86aef0; --t-biz: #e0a861; --t-ground: #b79ae6; --t-work: #6fcac2; --t-review: #a3adb5;
-  color-scheme: dark;
+  --bg: #000000; --card: #1c1c1e; --fill: #2c2c2e; --text: #f5f5f7; --text2: #98989d; --text3: #636366;
+  --sep: rgba(84, 84, 88, 0.6); --blue: #0a84ff; --green: #30d158; --orange: #ff9f0a; --purple: #bf5af2;
+  --pink: #ff375f; --gray: #8e8e93; --track: rgba(120, 120, 128, 0.32); --shadow: none; color-scheme: dark;
 }
-* { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.6; }
-.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 64px; display: grid; gap: 28px; }
-h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
-.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-button, textarea, input { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 17px; line-height: 1.4; -webkit-font-smoothing: antialiased; letter-spacing: -0.01em; }
+button, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--blue) 45%, transparent); outline-offset: 2px; border-radius: 8px; }
+[hidden] { display: none !important; }
+.stack { display: grid; gap: 20px; min-width: 0; }
+.app { max-width: 640px; margin: 0 auto; padding-inline: 16px; padding-block: 12px 56px; display: grid; gap: 20px; }
 
 /* header */
-.head { display: grid; gap: 6px; }
-.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
-.head h1 { font-size: clamp(26px, 5vw, 36px); font-weight: 800; letter-spacing: .01em; }
-.head p { margin: 0; color: var(--muted); max-width: 62ch; }
-.sync { font-size: 12px; color: var(--muted); }
+.top { display: grid; gap: 2px; padding-top: 8px; }
+.top-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.date-label { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .02em; }
+.large-title { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; margin: 0; line-height: 1.15; }
+.today-btn { border: 0; background: none; color: var(--blue); font-size: 17px; padding: 6px 0; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--track); border-radius: 9px; padding: 2px; gap: 2px; }
+.seg button { border: 0; background: transparent; border-radius: 7px; padding: 6px 0; font-size: 13px; font-weight: 600; color: var(--text); }
+.seg button[aria-selected="true"] { background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 
-/* summary band */
-.summary { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 16px; }
-@media (max-width: 760px) { .summary { grid-template-columns: minmax(0, 1fr); } }
-.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 18px; min-width: 0; }
-.big { font-family: var(--mono); font-size: 44px; font-weight: 500; line-height: 1; font-variant-numeric: tabular-nums; }
-.big small { font-size: 16px; color: var(--muted); margin-left: 4px; }
-.bar { height: 8px; background: var(--accent-soft); border-radius: 99px; overflow: hidden; }
-.bar > i { display: block; height: 100%; background: var(--done); border-radius: 99px; transition: width .3s; }
-.stack { display: grid; gap: 12px; align-content: start; }
-.tracks { display: grid; gap: 8px; }
-.trk { display: grid; grid-template-columns: 3.2em minmax(0,1fr) 3.6em; gap: 10px; align-items: center; font-size: 13px; }
-.trk .bar { height: 6px; }
-.trk span:last-child { text-align: right; font-family: var(--mono); color: var(--muted); }
+/* week strip */
+.week { display: grid; grid-template-columns: 28px repeat(7, minmax(0, 1fr)) 28px; align-items: center; gap: 2px; }
+.chev { border: 0; background: none; color: var(--blue); font-size: 22px; line-height: 1; padding: 6px 0; }
+.chev:disabled { color: var(--text3); cursor: default; }
+.day { border: 0; background: none; display: grid; justify-items: center; gap: 4px; padding: 4px 0; }
+.day .wd { font-size: 11px; font-weight: 600; color: var(--text2); }
+.day .num { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-family: var(--round); font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; position: relative; }
+.day.is-today .num { color: var(--pink); }
+.day[aria-current="date"] .num { background: var(--text); color: var(--bg); }
+.day.is-today[aria-current="date"] .num { background: var(--pink); color: #fff; }
+.day .dot { width: 5px; height: 5px; border-radius: 50%; background: transparent; }
+.day.done .dot { background: var(--green); }
+.day.part .dot { background: var(--orange); }
+.day.off .num { color: var(--text3); }
 
-.now-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; justify-content: space-between; }
-.now-head h2 { font-size: 22px; }
-.week-code { font-family: var(--mono); font-size: 13px; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 4px; }
-.label { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+/* cards */
+.card { background: var(--card); border-radius: 18px; box-shadow: var(--shadow); }
+.rings-card { padding: 18px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; }
+.rings { width: 108px; height: 108px; }
+.stats { display: grid; gap: 8px; }
+.stat { display: grid; gap: 0; }
+.stat .k { font-size: 13px; font-weight: 600; }
+.stat .v { font-family: var(--round); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.stat .v small { font-size: 15px; color: var(--text2); font-weight: 600; }
+.k-today { color: var(--pink); } .k-week { color: var(--green); } .k-year { color: var(--blue); }
 
-/* phases */
-.phases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 760px) { .phases { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.ph { text-align: left; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; display: grid; gap: 6px; min-width: 0; }
-.ph:hover { border-color: var(--accent); }
-.ph[aria-current="true"] { border-color: var(--accent); box-shadow: inset 0 3px 0 var(--accent); }
-.ph b { font-family: var(--display); font-size: 15px; }
-.ph .meta { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.section-head { display: flex; justify-content: space-between; align-items: baseline; padding-inline: 4px; gap: 12px; }
+.section-head h2 { font-size: 22px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+.section-head span { font-size: 15px; color: var(--text2); }
 
-/* filters */
-.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.chip { border: 1px solid var(--line); background: var(--paper); border-radius: 99px; padding: 4px 12px; font-size: 13px; cursor: pointer; }
-.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.toggle { margin-left: auto; font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center; cursor: pointer; }
+.list { padding: 0; margin: 0; list-style: none; overflow: hidden; }
+.row { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 12px; padding: 14px 16px; align-items: start; position: relative; }
+.row + .row::before { content: ""; position: absolute; top: 0; left: 58px; right: 0; height: 1px; background: var(--sep); transform: scaleY(.5); transform-origin: top; }
+.check { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--text3); background: none; padding: 0; display: grid; place-items: center; margin-top: 1px; transition: background .18s, border-color .18s, transform .12s; }
+.check:active { transform: scale(.9); }
+.check svg { width: 14px; height: 14px; opacity: 0; transition: opacity .15s; }
+.row.done .check { background: var(--c); border-color: var(--c); }
+.row.done .check svg { opacity: 1; }
+.check:disabled { cursor: default; }
+.row-main { display: grid; gap: 3px; min-width: 0; }
+.row-title { font-size: 17px; font-weight: 600; line-height: 1.3; }
+.row.done .row-title { color: var(--text2); }
+.row-detail { font-size: 15px; color: var(--text2); line-height: 1.35; }
+.meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.pill { font-size: 12px; font-weight: 600; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); padding: 2px 8px; border-radius: 999px; }
+.mins { font-size: 13px; color: var(--text2); font-variant-numeric: tabular-nums; }
+.open { align-self: center; text-decoration: none; font-size: 15px; font-weight: 600; color: var(--blue); background: color-mix(in srgb, var(--blue) 12%, transparent); padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
+.open:active { opacity: .7; }
+.rest { padding: 28px 16px; text-align: center; color: var(--text2); display: grid; gap: 4px; }
+.rest b { color: var(--text); font-size: 20px; }
 
-/* phase sections and weeks */
-.phase-sec { display: grid; gap: 12px; scroll-margin-top: 12px; }
-.phase-sec > header { display: grid; gap: 4px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); }
-.phase-sec > header h2 { font-size: 21px; }
-.phase-sec > header p { margin: 0; font-size: 13px; color: var(--muted); max-width: 70ch; }
-.weeks { display: grid; gap: 0; }
-.wk { display: grid; grid-template-columns: 8.5em minmax(0, 1fr); gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
-@media (max-width: 560px) { .wk { grid-template-columns: minmax(0, 1fr); gap: 6px; } }
-.wk.current { background: var(--accent-soft); margin-inline: -12px; padding-inline: 12px; border-radius: 8px; border-bottom-color: transparent; }
-.wk-id { display: grid; gap: 2px; align-content: start; }
-.wk-id .mono:first-child { font-size: 15px; font-weight: 500; }
-.wk-id .mono + .mono { font-size: 12px; color: var(--muted); }
-.wk-id .here { font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: .06em; }
-.wk-body { display: grid; gap: 8px; min-width: 0; }
-.wk-body h3 { font-family: var(--body); font-size: 16px; font-weight: 700; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.wk-body h3 .count { font-family: var(--mono); font-size: 12px; font-weight: 400; color: var(--muted); }
-.wk-body h3 .count.all { color: var(--done); }
-.tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.task { display: grid; grid-template-columns: 22px 3.2em minmax(0, 1fr); gap: 8px; align-items: start; }
-.task input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--done); cursor: pointer; }
-.task input:disabled { cursor: default; }
-.task label { cursor: pointer; }
-.task.done label { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
-.tag { font-size: 12px; font-weight: 700; padding-top: 2px; }
-.tag[data-t="学习"] { color: var(--t-tech); }
-.tag[data-t="练习"] { color: var(--t-work); }
-.tag[data-t="考证"] { color: var(--t-biz); }
-.tag[data-t="复盘"] { color: var(--t-review); }
-.res { display: inline-flex; gap: 4px; align-items: baseline; margin-left: 6px; font-size: 13px; color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); overflow-wrap: anywhere; }
-.res:hover { border-bottom-color: var(--accent); }
-.certs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 760px) { .certs { grid-template-columns: minmax(0, 1fr); } }
-.cert { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; min-width: 0; }
-.cert.got { border-color: var(--done); background: var(--done-soft); }
-.cert .when { font-family: var(--mono); font-size: 12px; color: var(--muted); }
-.cert b { font-size: 15px; line-height: 1.4; }
-.cert .fee { font-size: 13px; color: var(--muted); }
-.stamp { font-size: 12px; font-weight: 700; color: var(--t-biz); }
-.cert.got .stamp { color: var(--done); }
-.opt { font-size: 13px; color: var(--muted); margin: 0; }
-.opt a { color: var(--accent); }
-.sec-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.sec-title h2 { font-size: 21px; }
-.out { font-size: 13px; color: var(--muted); }
-.out b { font-weight: 500; color: var(--ink); }
-details.note summary { font-size: 13px; color: var(--accent); cursor: pointer; width: fit-content; }
-details.note textarea, .now textarea { width: 100%; min-height: 84px; resize: vertical; margin-top: 6px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); font-size: 14px; }
-.saved { font-size: 12px; color: var(--muted); min-height: 1em; }
-.now .tasks { margin-top: 4px; }
-.foot { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
-@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+.note { padding: 14px 16px; display: grid; gap: 8px; }
+.note label { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .02em; }
+.note textarea { width: 100%; min-height: 76px; border: 0; background: var(--fill); border-radius: 10px; padding: 10px 12px; font-size: 16px; resize: vertical; }
+.note textarea:focus { outline: 2px solid color-mix(in srgb, var(--blue) 45%, transparent); }
+.saved { font-size: 13px; color: var(--text2); min-height: 1em; }
+
+.cert-card { padding: 4px 0; }
+.cert-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 12px 16px; align-items: center; position: relative; text-decoration: none; color: inherit; }
+.cert-row + .cert-row::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--sep); transform: scaleY(.5); }
+.cert-row b { font-size: 16px; font-weight: 600; display: block; }
+.cert-row span { font-size: 13px; color: var(--text2); }
+.days-left { font-family: var(--round); font-size: 20px; font-weight: 700; color: var(--orange); text-align: right; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.days-left small { display: block; font-family: var(--font); font-size: 11px; color: var(--text2); font-weight: 600; }
+.days-left.got { color: var(--green); }
+
+/* year view */
+.phase { display: grid; gap: 8px; }
+.phase-head { padding-inline: 4px; display: grid; gap: 2px; }
+.phase-head h3 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.phase-head p { margin: 0; font-size: 14px; color: var(--text2); }
+.wk-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) 60px; gap: 10px; align-items: center; padding: 12px 16px; border: 0; background: none; width: 100%; text-align: left; position: relative; }
+.wk-row + .wk-row::before { content: ""; position: absolute; top: 0; left: 70px; right: 0; height: 1px; background: var(--sep); transform: scaleY(.5); }
+.wk-no { font-family: var(--round); font-weight: 700; font-size: 15px; color: var(--text2); }
+.wk-row.cur .wk-no { color: var(--pink); }
+.wk-t { font-size: 16px; font-weight: 600; }
+.wk-d { font-size: 13px; color: var(--text2); font-variant-numeric: tabular-nums; }
+.bar { height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--green); border-radius: 3px; }
+.wk-p { font-size: 12px; color: var(--text2); text-align: right; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.foot { font-size: 13px; color: var(--text2); padding-inline: 4px; line-height: 1.5; }
+@media (prefers-reduced-motion: reduce) { .check, .check svg { transition: none; } }
 </style>
 </head>
 <body>
 
 
-<div class="wrap">
-  <header class="head">
-    <div class="eyebrow">2026-10-12 → 2027-10-10 · 52 周 · 每周约 8 小时</div>
-    <h1>保险×AI 成长看板</h1>
-    <p>两条线：考证，和 AI 技能学习（Python → 大模型 API 与提示词 → RAG → Agent）。每项学习任务都附了视频或课程链接，学完就打勾。</p>
-    <div class="sync" id="sync">正在连接保存服务…</div>
+<div class="app">
+  <header class="top">
+    <div class="top-row">
+      <div>
+        <div class="date-label" id="dateLabel"></div>
+        <h1 class="large-title" id="bigTitle">今天</h1>
+      </div>
+      <button class="today-btn" id="backToday" type="button" hidden>回到今天</button>
+    </div>
   </header>
 
-  <section class="summary">
-    <div class="panel stack">
-      <div class="label">总进度</div>
-      <div class="big" id="pct">0<small>%</small></div>
-      <div class="bar"><i id="pctbar" style="width:0%"></i></div>
-      <div class="mono" style="font-size:13px;color:var(--muted)" id="pctnum"></div>
-      <div class="tracks" id="tracks"></div>
+  <div class="seg" role="tablist" aria-label="视图">
+    <button type="button" role="tab" id="tab-day" aria-selected="true">每日</button>
+    <button type="button" role="tab" id="tab-year" aria-selected="false">全年</button>
+  </div>
+
+  <section id="view-day" class="stack">
+    <nav class="week" id="week" aria-label="本周日期"></nav>
+
+    <div class="card rings-card">
+      <svg class="rings" id="rings" viewBox="0 0 108 108" role="img" aria-label="进度圆环"></svg>
+      <div class="stats" id="stats"></div>
     </div>
-    <div class="panel stack now" id="now"></div>
+
+    <div class="section-head"><h2 id="listTitle">今日任务</h2><span id="listMeta"></span></div>
+    <ul class="card list" id="tasks"></ul>
+
+    <div class="card note">
+      <label for="dayNote" id="noteLabel">今日笔记</label>
+      <textarea id="dayNote" placeholder="学到了什么、哪里没懂"></textarea>
+      <div class="saved" id="noteSaved"></div>
+    </div>
+
+    <div class="section-head"><h2>证书</h2><span id="owned"></span></div>
+    <div class="card cert-card" id="certs"></div>
   </section>
 
-  <section class="stack" aria-labelledby="cert-title">
-    <div class="sec-title"><h2 id="cert-title">证书时间线</h2><span class="label">考完勾选当周的考试任务，这里会变成「已考」</span></div>
-    <div class="certs" id="certs"></div>
-    <p class="opt" id="opts"></p>
-  </section>
+  <section id="view-year" class="stack" style="gap:28px" hidden></section>
 
-  <nav class="phases" id="phases" aria-label="阶段"></nav>
-
-  <div class="filters" id="filters" role="group" aria-label="按能力线筛选"></div>
-
-  <main id="list" class="stack" style="gap:36px"></main>
-
-  <footer class="foot">本地版：勾选和复盘保存在这台电脑的浏览器里，换浏览器或清除浏览数据会丢失；想多设备同步请用在线看板。证书费用和考试时间以官网为准；海外课程网站在国内可能需要网络工具，B站、慕课、阿里云的课程可以直接看。</footer>
+  <p class="foot" id="sync">正在连接保存服务…</p>
 </div>
 
 <script>
-const PLAN = {"start": "2026-10-12", "hours": "每周约 8 小时", "links": {"PY_HM": ["黑马程序员 Python 零基础全套（B站，164 集，约 32 小时）", "https://www.bilibili.com/video/BV1qW4y1a7fU/"], "PY_SONG": ["嵩天《Python 语言程序设计》（中国大学 MOOC，北京理工，对应二级 Python）", "https://www.icourse163.org/course/BIT-268001"], "LHY": ["李宏毅《生成式 AI 导论 2024》（B站搬运，20 集）", "https://www.bilibili.com/video/BV1DuDYYCEw4/"], "PROMPT": ["吴恩达 × OpenAI 提示工程课（B站 Datawhale 中文翻译，9 集）", "https://www.bilibili.com/video/BV1Bo4y1A7FU/"], "LLMU": ["Datawhale《动手学大模型应用开发》（图文教程）", "https://github.com/datawhalechina/llm-universe"], "RAG": ["吴恩达 LangChain: Chat with Your Data（8 节视频，约 1.3 小时）", "https://www.deeplearning.ai/short-courses/langchain-chat-with-your-data/"], "HF": ["Hugging Face AI Agents 课程（中文版，免费证书）", "https://huggingface.co/learn/agents-course/zh-CN/unit0/introduction"], "AGENTIC": ["吴恩达 Agentic AI（31 节视频，约 10 小时，视频可免费看）", "https://www.deeplearning.ai/courses/agentic-ai/"], "ACA_COURSE": ["阿里云大模型工程师 ACA 官方课程", "https://edu.aliyun.com/course/3126500/"], "ACP_COURSE": ["阿里云大模型 ACP 官方课程", "https://edu.aliyun.com/course/3130200/"], "ACP_REPO": ["阿里云大模型 ACP 教程（GitHub，中文 Notebook）", "https://github.com/AlibabaCloudDocs/aliyun_acp_learning"], "LLM_CERT": ["阿里云大模型认证总页", "https://edu.aliyun.com/certification/llm"], "ACA_CERT": ["阿里云大模型 ACA 认证页", "https://edu.aliyun.com/certification/aca13"], "AI901": ["Microsoft AI-901 认证页", "https://learn.microsoft.com/zh-cn/credentials/certifications/azure-ai-fundamentals/"], "MS_P1": ["微软官方学习路径：面向技术人员的 AI 概念（中文，7 个模块）", "https://learn.microsoft.com/zh-cn/training/paths/ai-concepts/"], "MS_P2": ["微软官方学习路径：开始使用 Azure 上的 AI 应用和代理（中文，7 个模块）", "https://learn.microsoft.com/zh-cn/training/paths/get-started-ai-apps-agents/"]}, "certs": [{"name": "阿里云大模型工程师 ACA", "when": "2027 年 1 月下旬（W16），W14 预约", "fee": "¥600", "form": "线上笔试", "why": "阿里云大模型认证的入门级，考提示词、RAG、微调、Agent 的基本概念，国内企业认知度高", "link": "ACA_CERT", "core": true, "doneTask": "w16-1"}, {"name": "Microsoft Azure AI Fundamentals（AI-901）", "when": "2027 年 3 月下旬（W24），W23 预约", "fee": "按国家定价，美国 $99，以报名页为准", "form": "线上或考点，约 45 分钟，有简体中文", "why": "2026 年 6 月起取代 AI-900 的国际通用 AI 基础认证，在外资企业中认知度较高，和你的 LOMA 一样是国际证书", "link": "AI901", "core": true, "doneTask": "w24-1"}, {"name": "阿里云大模型高级工程师 ACP", "when": "2027 年 8 月中旬（W44），W40 预约", "fee": "¥1200", "form": "线下笔试", "why": "ACA 的进阶版，考 RAG、Agent、模型优化、部署与安全，是这一年学习主线的最终检验", "link": "LLM_CERT", "core": true, "doneTask": "w43-2"}], "phases": [{"id": "P1", "name": "阶段 1｜Python 基础", "range": [1, 8], "goal": "从零学会 Python 基础语法，能独立写 50–100 行的小脚本", "check": "不看视频，独立写出一个读写 JSON 文件、带函数和循环的脚本"}, {"id": "P2", "name": "阶段 2｜大模型入门 + 考 ACA", "range": [9, 16], "goal": "理解大模型原理，学会调用 API 和写提示词，考阿里云 ACA", "check": "通过阿里云大模型 ACA"}, {"id": "P3", "name": "阶段 3｜Python 进阶 + 考 AI-901", "range": [17, 24], "goal": "练熟用 Python 处理文件、PDF 和批量调用 API；用微软官方中文课程备考 AI-901", "check": "通过 Microsoft AI-901；能用 Python 批量读取 PDF 并调用 API 处理"}, {"id": "P4", "name": "阶段 4｜RAG 知识库问答", "range": [25, 32], "goal": "学会文档切片、向量检索、检索问答和效果评估", "check": "自己搭出一个带出处的知识库问答，并用 20 道题评估"}, {"id": "P5", "name": "阶段 5｜Agent + 考 ACP", "range": [33, 44], "goal": "学会工具调用、规划、多智能体和评测，考阿里云大模型 ACP", "check": "通过阿里云大模型 ACP"}, {"id": "P6", "name": "阶段 6｜查漏补缺与年度复盘", "range": [45, 52], "goal": "补看前面跳过的内容，定下一年方向", "check": "三张证书到手，形成下一年计划"}], "items": [{"w": [1, 1], "theme": "环境和第一行代码", "tasks": [["学习", "看黑马 Python：课程介绍、环境安装、基础语法", "PY_HM"], ["练习", "安装 Python 和编辑器（VS Code 或 PyCharm），跑通第一行 print", null], ["复盘", "定好每周固定的 8 小时，写进日历", null]]}, {"w": [2, 2], "theme": "变量与数据类型", "tasks": [["学习", "黑马 Python：字面量、变量、数据类型、字符串格式化、input", "PY_HM"], ["练习", "写一个小程序：输入年龄和保额，打印一句话结果", null]]}, {"w": [3, 3], "theme": "判断与循环", "tasks": [["学习", "黑马 Python：if 判断、while 和 for 循环", "PY_HM"], ["练习", "做完这两章的全部课后练习", null]]}, {"w": [4, 4], "theme": "函数", "tasks": [["学习", "黑马 Python：函数定义、参数、返回值、作用域", "PY_HM"], ["练习", "把上周的练习改写成函数", null], ["复盘", "第 1 次月度复盘：进度和时间是否跟得上", null]]}, {"w": [5, 5], "theme": "数据容器（上）", "tasks": [["学习", "黑马 Python：列表、元组、字符串的常用操作", "PY_HM"], ["练习", "每个知识点至少敲 2 个例子", null]]}, {"w": [6, 6], "theme": "数据容器（下）", "tasks": [["学习", "黑马 Python：集合、字典、容器通用操作", "PY_HM"], ["练习", "用字典存 5 条信息，写函数按条件筛选", null]]}, {"w": [7, 7], "theme": "文件、异常、模块", "tasks": [["学习", "黑马 Python：函数进阶、文件读写、异常处理、模块与包", "PY_HM"], ["练习", "读写一个 JSON 文件，并处理文件不存在的情况", null]]}, {"w": [8, 8], "theme": "阶段 1 检查", "tasks": [["练习", "不看视频，独立写一个 50–100 行的脚本（读 JSON、用函数和循环处理、写回文件）", null], ["复盘", "阶段 1 复盘；第 2 次月度复盘", null]]}, {"w": [9, 9], "theme": "大模型是什么", "tasks": [["学习", "李宏毅《生成式 AI 导论》第 0–4 讲", "LHY"], ["练习", "记下 3 个没听懂的概念，下周带着问题继续看", null]]}, {"w": [10, 10], "theme": "大模型怎么炼成", "tasks": [["学习", "李宏毅《生成式 AI 导论》第 5–9 讲（含 AI Agent）", "LHY"], ["练习", "用自己的话写一页纸：预训练、指令微调、RLHF、Agent 分别是什么", null]]}, {"w": [11, 11], "theme": "第一次调用 API", "tasks": [["学习", "Datawhale《动手学大模型应用开发》第 2 章：使用 LLM API", "LLMU"], ["练习", "开通阿里云百炼或 DeepSeek API，运行 code/01_call_llm.py", null]]}, {"w": [12, 12], "theme": "提示词工程", "tasks": [["学习", "吴恩达 × OpenAI 提示工程课，9 集全部看完", "PROMPT"], ["练习", "用 API 对比 3 种提示词写法，记录输出差异", null]]}, {"w": [13, 13], "theme": "ACA 备考（1）", "tasks": [["学习", "阿里云 ACA 官方课程：前半部分", "ACA_COURSE"], ["练习", "用 API 写一个提示词模板：输入问题，输出固定格式的 JSON", null]]}, {"w": [14, 14], "theme": "ACA 备考（2）", "tasks": [["学习", "阿里云 ACA 官方课程：后半部分", "ACA_COURSE"], ["考证", "在认证页预约 ACA 考试（定在 W16）", "ACA_CERT"]]}, {"w": [15, 15], "theme": "ACA 冲刺", "tasks": [["练习", "对照考纲查漏补缺，弱项回看课程", "ACA_CERT"], ["学习", "选看：李宏毅第 12–14 讲（能力评测与安全）", "LHY"]]}, {"w": [16, 16], "theme": "考 ACA", "tasks": [["考证", "参加阿里云大模型工程师 ACA 考试（线上，¥600）", "ACA_CERT"], ["复盘", "阶段 2 复盘", null]]}, {"w": [17, 17], "theme": "春节周（轻量）", "tasks": [["学习", "嵩天 MOOC：前两周内容，当复习看", "PY_SONG"]]}, {"w": [18, 18], "theme": "节后恢复", "tasks": [["学习", "嵩天 MOOC：基本数据类型、程序控制结构", "PY_SONG"]]}, {"w": [19, 19], "theme": "函数与数据结构", "tasks": [["学习", "嵩天 MOOC：函数、组合数据类型", "PY_SONG"], ["练习", "做完对应章节的课后编程题", null]]}, {"w": [20, 20], "theme": "文件与数据格式", "tasks": [["学习", "嵩天 MOOC：文件和数据格式化（CSV、JSON）", "PY_SONG"], ["练习", "读一个 CSV 文件，统计后写成 JSON", null]]}, {"w": [21, 21], "theme": "读 PDF + AI-901 备考（1）", "tasks": [["练习", "用 pypdf 读出一份 PDF 的全部文字，按段落切开", null], ["学习", "微软学习路径「AI 概念」7 个模块", "MS_P1"]]}, {"w": [22, 22], "theme": "批量调用 API + AI-901 备考（2）", "tasks": [["练习", "把 PDF 段落逐段交给大模型总结，结果存成 JSON", null], ["学习", "微软学习路径「Azure 上的 AI 应用和代理」7 个模块", "MS_P2"]]}, {"w": [23, 23], "theme": "AI-901 冲刺", "tasks": [["考证", "预约 AI-901 考试（定在 W24），做认证页上的免费模拟测试", "AI901"], ["练习", "整理第 21–22 周的代码，写清使用说明", null]]}, {"w": [24, 24], "theme": "考 AI-901", "tasks": [["考证", "参加 Microsoft AI-901 考试", "AI901"], ["复盘", "阶段 3 复盘", null]]}, {"w": [25, 26], "theme": "RAG 入门", "tasks": [["学习", "吴恩达 LangChain: Chat with Your Data，8 节全部看完", "RAG"], ["学习", "《动手学大模型应用开发》第 3 章：搭建知识库（嵌入、切片、向量库）", "LLMU"]]}, {"w": [27, 28], "theme": "动手搭 RAG", "tasks": [["学习", "《动手学大模型应用开发》第 4 章：检索问答链、Streamlit 界面", "LLMU"], ["练习", "用 10 份保险公司官网公开的健康险条款搭一个问答，回答要带出处", null]]}, {"w": [29, 30], "theme": "评估与优化", "tasks": [["学习", "《动手学大模型应用开发》第 5 章：系统评估与优化", "LLMU"], ["学习", "阿里云 ACP 教程：RAG 相关章节", "ACP_REPO"]]}, {"w": [31, 32], "theme": "RAG 收尾", "tasks": [["练习", "写 20 道测试题评估自己的问答，针对错题改一版", null], ["复盘", "阶段 4 复盘", null]]}, {"w": [33, 34], "theme": "Agent 入门", "tasks": [["学习", "Hugging Face Agents 课程第 1 单元（中文）", "HF"], ["练习", "跑通课程里的第一个 Agent 例子", null]]}, {"w": [35, 36], "theme": "Agent 设计模式", "tasks": [["学习", "吴恩达 Agentic AI 前半：反思、工具调用", "AGENTIC"], ["练习", "跟着课程代码跑一遍工具调用的例子", null]]}, {"w": [37, 38], "theme": "Agent 框架", "tasks": [["学习", "Hugging Face 第 2–3 单元：LangGraph 等框架、Agentic RAG", "HF"], ["学习", "吴恩达 Agentic AI 后半：规划、多智能体、评测", "AGENTIC"]]}, {"w": [39, 40], "theme": "ACP 备考（1）", "tasks": [["学习", "阿里云 ACP 教程：提示词、RAG、模型优化章节", "ACP_REPO"], ["考证", "预约 ACP 线下考试（定在 W44）", "LLM_CERT"]]}, {"w": [41, 42], "theme": "ACP 备考（2）", "tasks": [["学习", "阿里云 ACP 教程：Agent、部署、安全合规章节；配合官方课程", "ACP_COURSE"], ["学习", "选做：Hugging Face 第 4 单元最终项目", "HF"]]}, {"w": [43, 44], "theme": "考 ACP", "tasks": [["练习", "对照考纲查漏补缺", "ACP_REPO"], ["考证", "参加阿里云大模型 ACP 考试（线下，¥1200）", "LLM_CERT"], ["复盘", "阶段 5 复盘", null]]}, {"w": [45, 46], "theme": "查漏补缺", "tasks": [["学习", "回看前面标记为没学懂的内容", null]]}, {"w": [47, 48], "theme": "继续深化", "tasks": [["学习", "选看：吴恩达 Agentic AI 中没看的部分", "AGENTIC"]]}, {"w": [49, 50], "theme": "补课", "tasks": [["学习", "选看：李宏毅第 15–18 讲（图像与视频生成）", "LHY"]]}, {"w": [51, 52], "theme": "年度复盘", "tasks": [["复盘", "整理证书和学习笔记", null], ["复盘", "定下一年方向，例如进阶考微软 AI-103（AI 应用与 Agent 开发者）", null]]}], "owned": "LOMA（保险专业）"};
-const TRACKS = ["学习", "练习", "考证", "复盘"];
-const TRACK_TOKEN = { 学习: "tech", 练习: "work", 考证: "biz", 复盘: "review" };
-function resLink(key) {
-  if (!key || !PLAN.links[key]) return null;
-  const [label, url] = PLAN.links[key];
-  const short = label.replace(/（.*?）/g, "");
-  return el("a", { class: "res", href: url, target: "_blank", rel: "noopener", title: label }, short + " ↗");
-}
-const START = new Date(PLAN.start + "T00:00:00+08:00");
-const DAY = 86400000;
+const DATA = {"links":{"PY_HM":["黑马程序员 Python 零基础全套（B站，164 集，约 32 小时）","https://www.bilibili.com/video/BV1qW4y1a7fU/"],"PY_SONG":["嵩天《Python 语言程序设计》（中国大学 MOOC，北京理工，对应二级 Python）","https://www.icourse163.org/course/BIT-268001"],"LHY":["李宏毅《生成式 AI 导论 2024》（B站搬运，20 集）","https://www.bilibili.com/video/BV1DuDYYCEw4/"],"PROMPT":["吴恩达 × OpenAI 提示工程课（B站 Datawhale 中文翻译，9 集）","https://www.bilibili.com/video/BV1Bo4y1A7FU/"],"LLMU":["Datawhale《动手学大模型应用开发》（图文教程）","https://github.com/datawhalechina/llm-universe"],"RAG":["吴恩达 LangChain: Chat with Your Data（8 节视频，约 1.3 小时）","https://www.deeplearning.ai/short-courses/langchain-chat-with-your-data/"],"HF":["Hugging Face AI Agents 课程（中文版，免费证书）","https://huggingface.co/learn/agents-course/zh-CN/unit0/introduction"],"AGENTIC":["吴恩达 Agentic AI（31 节视频，约 10 小时，视频可免费看）","https://www.deeplearning.ai/courses/agentic-ai/"],"ACA_COURSE":["阿里云大模型工程师 ACA 官方课程","https://edu.aliyun.com/course/3126500/"],"ACP_COURSE":["阿里云大模型 ACP 官方课程","https://edu.aliyun.com/course/3130200/"],"ACP_REPO":["阿里云大模型 ACP 教程（GitHub，中文 Notebook）","https://github.com/AlibabaCloudDocs/aliyun_acp_learning"],"LLM_CERT":["阿里云大模型认证总页","https://edu.aliyun.com/certification/llm"],"ACA_CERT":["阿里云大模型 ACA 认证页","https://edu.aliyun.com/certification/aca13"],"AI901":["Microsoft AI-901 认证页","https://learn.microsoft.com/zh-cn/credentials/certifications/azure-ai-fundamentals/"],"MS_P1":["微软官方学习路径：面向技术人员的 AI 概念（中文，7 个模块）","https://learn.microsoft.com/zh-cn/training/paths/ai-concepts/"],"MS_P2":["微软官方学习路径：开始使用 Azure 上的 AI 应用和代理（中文，7 个模块）","https://learn.microsoft.com/zh-cn/training/paths/get-started-ai-apps-agents/"]},"certs":[{"name":"阿里云大模型工程师 ACA","when":"2027 年 1 月下旬（W16），W14 预约","fee":"¥600","form":"线上笔试","link":"ACA_CERT","core":true,"doneTaskDate":"2027-01-30-1"},{"name":"Microsoft Azure AI Fundamentals（AI-901）","when":"2027 年 3 月下旬（W24），W23 预约","fee":"美国 $99，各国定价不同","form":"线上或考点，约 45 分钟，有简体中文","link":"AI901","core":true,"doneTaskDate":"2027-03-27-1"},{"name":"阿里云大模型高级工程师 ACP","when":"2027 年 8 月中旬（W44），W40 预约","fee":"¥1200","form":"线下笔试","link":"LLM_CERT","core":true,"doneTaskDate":"2027-08-14-1"}],"owned":"LOMA（保险专业）","phases":[{"id":"P1","name":"阶段 1｜Python 基础","range":[1,8],"goal":"从零学会 Python 基础语法，能独立写 50–100 行的小脚本"},{"id":"P2","name":"阶段 2｜大模型入门 + 考 ACA","range":[9,16],"goal":"理解大模型原理，学会调用 API 和写提示词，考阿里云 ACA"},{"id":"P3","name":"阶段 3｜Python 进阶 + 考 AI-901","range":[17,24],"goal":"练熟用 Python 处理文件、PDF 和批量调用 API；用微软官方中文课程备考 AI-901"},{"id":"P4","name":"阶段 4｜RAG 知识库问答","range":[25,32],"goal":"学会文档切片、向量检索、检索问答和效果评估"},{"id":"P5","name":"阶段 5｜Agent + 考 ACP","range":[33,44],"goal":"学会工具调用、规划、多智能体和评测，考阿里云大模型 ACP"},{"id":"P6","name":"阶段 6｜查漏补缺与年度复盘","range":[45,52],"goal":"补看前面跳过的内容，定下一年方向"}],"themes":{"1":"环境与基础语法","2":"字符串、输入与判断入门","3":"判断与循环","4":"循环收尾与函数","5":"列表、元组、字符串、集合","6":"字典与函数进阶","7":"文件、异常、模块与 JSON","8":"阶段 1 检查","9":"大模型是什么","10":"大模型怎么炼成","11":"第一次调用 API","12":"提示词工程","13":"ACA 备考（1）","14":"ACA 备考（2）","15":"ACA 冲刺","16":"考 ACA","17":"春节周（轻量）","18":"节后恢复","19":"函数与数据结构","20":"文件与数据格式","21":"读 PDF + AI-901 备考（1）","22":"批量调用 API + AI-901 备考（2）","23":"AI-901 冲刺","24":"考 AI-901","25":"RAG 入门","26":"RAG 入门","27":"动手搭 RAG","28":"动手搭 RAG","29":"评估与优化","30":"评估与优化","31":"RAG 收尾","32":"RAG 收尾","33":"Agent 入门","34":"Agent 入门","35":"Agent 设计模式","36":"Agent 设计模式","37":"Agent 框架","38":"Agent 框架","39":"ACP 备考（1）","40":"ACP 备考（1）","41":"ACP 备考（2）","42":"ACP 备考（2）","43":"考 ACP","44":"考 ACP","45":"查漏补缺","46":"查漏补缺","47":"继续深化","48":"继续深化","49":"补课","50":"补课","51":"年度复盘","52":"年度复盘"},"days":[{"date":"2026-10-13","w":1,"ph":"P1","tasks":[{"k":"练习","t":"安装 Python 3.12 和 PyCharm（或 VS Code）","d":"Mac 安装看 P5；装好后跑通第一行 print","m":20,"l":null},{"k":"学习","t":"黑马 Python P1–P7","d":"Python导学视频、初识Python、什么是编程语言等","m":32,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-14","w":1,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P8–P11","d":"第一个Python程序-练习讲解、第一个Python程序-常见问题解答、Python解释器等","m":30,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-15","w":1,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P12–P14","d":"【拓展】PyCharm的基础使用、第一章内容重点回顾、字面量","m":27,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-16","w":1,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P15–P17","d":"注释、变量、数据类型","m":31,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-17","w":1,"ph":"P1","tasks":[{"k":"练习","t":"做完第一章的练习","d":"确保 PyCharm 能新建项目、运行 hello world","m":60,"l":null},{"k":"复盘","t":"定好每周的固定学习时间","d":"工作日每天 45 分钟、周六 2.5 小时、周日 1.5 小时，写进日历","m":10,"l":null}]},{"date":"2026-10-18","w":1,"ph":"P1","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2026-10-19","w":2,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P18–P19","d":"数据类型转换、标识符","m":28,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-20","w":2,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P20–P22","d":"运算符、字符串的三种定义方式、字符串的拼接","m":26,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-21","w":2,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P23–P26","d":"字符串格式化、字符串格式化的精度控制、字符串格式化的方式2等","m":34,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-22","w":2,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P27–P29","d":"字符串格式化练习题讲解、数据输入(input语句)、布尔类型和比较运算符","m":35,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-23","w":2,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P30–P33","d":"if语句的基本格式、案例-成年人判断讲解、if else组合判断语句等","m":25,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-24","w":2,"ph":"P1","tasks":[{"k":"练习","t":"写一个小程序：输入年龄和保额，打印一句话结果","d":"用到 input、变量、字符串格式化","m":90,"l":null},{"k":"练习","t":"重做本周视频里的课后练习","d":"","m":60,"l":null}]},{"date":"2026-10-25","w":2,"ph":"P1","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2026-10-26","w":3,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P34–P35","d":"if_elif_else组合使用的语法、案例-猜猜心里数字讲解","m":22,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-27","w":3,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P36–P37","d":"判断语句的嵌套、判断语句综合案例","m":26,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-28","w":3,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P38–P40","d":"while循环的基础应用、案例求1-100的和讲解、while循环猜数字案例","m":26,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-29","w":3,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P41–P42","d":"while循环的嵌套应用、while循环案例-九九乘法表","m":32,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-30","w":3,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P43–P46","d":"for循环的基础语法、for循环案例-数一数多少字母a讲解、range语句等","m":32,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-10-31","w":3,"ph":"P1","tasks":[{"k":"练习","t":"做完判断语句的全部案例","d":"猜数字、买票、成年人判断，自己从头写","m":90,"l":null},{"k":"练习","t":"用 while 和 for 各写一个九九乘法表","d":"","m":60,"l":null}]},{"date":"2026-11-01","w":3,"ph":"P1","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2026-11-02","w":4,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P47–P50","d":"for循环的嵌套使用、for循环打印九九乘法表、continue和break等","m":34,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-03","w":4,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P51–P54","d":"函数的初体验、函数的基础定义语法、函数基础定义练习案例等","m":34,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-04","w":4,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P55–P59","d":"函数的参数练习案例、函数的返回值定义语法、函数返回值之None类型等","m":31,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-05","w":4,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P60–P61","d":"变量在函数中的作用域、函数综合案例","m":29,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-06","w":4,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P62–P64","d":"数据容器入门、列表的定义语法、列表的下标索引","m":27,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-07","w":4,"ph":"P1","tasks":[{"k":"练习","t":"做完循环和函数章节的综合案例","d":"","m":90,"l":null},{"k":"练习","t":"把第 2 周的小程序改写成函数","d":"","m":60,"l":null}]},{"date":"2026-11-08","w":4,"ph":"P1","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null},{"k":"复盘","t":"第 1 次月度检查","d":"进度跟得上吗？每天 45 分钟够不够？","m":10,"l":null}]},{"date":"2026-11-09","w":5,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P65","d":"列表的常用操作方法","m":30,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-10","w":5,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P66–P68","d":"列表的常用操作课后练习讲解、列表的循环遍历、元组的定义和操作","m":41,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-11","w":5,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P69–P70","d":"字符串的定义和操作、字符串的课后练习讲解","m":26,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-12","w":5,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P71–P73","d":"数据容器（序列）的切片、序列的切片课后练习讲解、集合的定义和操作","m":42,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-13","w":5,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P74–P75","d":"集合的课后练习、字典的定义","m":26,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-14","w":5,"ph":"P1","tasks":[{"k":"练习","t":"列表、元组、字符串：每个常用方法敲 2 个例子","d":"","m":90,"l":null},{"k":"练习","t":"写一个程序：用列表存 5 个数字，算出总和、最大值、平均值","d":"","m":60,"l":null}]},{"date":"2026-11-15","w":5,"ph":"P1","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2026-11-16","w":6,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P76–P78","d":"字典的常用操作、字典课后练习讲解、5类数据容器的总结对比","m":29,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-17","w":6,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P79–P81","d":"数据容器的通用操作、拓展-字符串大小比较的方式、函数的多返回值","m":28,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-18","w":6,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P82–P83","d":"函数的多种参数使用形式、函数作为参数传递","m":32,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-19","w":6,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P84–P85","d":"lambda匿名函数、文件编码概念","m":16,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-20","w":6,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P86","d":"文件的读取操作","m":28,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-21","w":6,"ph":"P1","tasks":[{"k":"练习","t":"用字典存 5 条信息，写函数按条件筛选","d":"例如按预算筛出符合条件的条目","m":90,"l":null},{"k":"练习","t":"重做数据容器章节的课后练习","d":"","m":60,"l":null}]},{"date":"2026-11-22","w":6,"ph":"P1","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2026-11-23","w":7,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P87–P90","d":"文件读取的课后练习讲解、文件的写出操作、文件的追加写入操作等","m":32,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-24","w":7,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P91–P93","d":"了解异常、异常的捕获、异常的传递性","m":34,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-25","w":7,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P94–P95","d":"模块的概念和导入、自定义模块并导入","m":33,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-26","w":7,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P96–P97","d":"自定义Python包、安装第三方包","m":24,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-27","w":7,"ph":"P1","tasks":[{"k":"学习","t":"黑马 Python P98–P100","d":"异常-模块-包-综合案例讲解、案例介绍、JSON数据格式的转换","m":40,"l":"PY_HM"},{"k":"练习","t":"把今天视频里的例子自己敲一遍","d":"不复制粘贴，敲完能运行就算完成","m":10,"l":null}]},{"date":"2026-11-28","w":7,"ph":"P1","tasks":[{"k":"练习","t":"读写一个 JSON 文件，并处理文件不存在的情况","d":"用到 open、json、try/except","m":90,"l":null},{"k":"练习","t":"把本周写的代码拆成一个自定义模块，再在另一个文件里导入使用","d":"","m":60,"l":null}]},{"date":"2026-11-29","w":7,"ph":"P1","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2026-11-30","w":8,"ph":"P1","tasks":[{"k":"练习","t":"回看第 2–3 章笔记，重写 3 个判断和循环的例子","d":"","m":45,"l":null}]},{"date":"2026-12-01","w":8,"ph":"P1","tasks":[{"k":"练习","t":"回看第 5 章，重写 2 个函数的例子","d":"","m":45,"l":null}]},{"date":"2026-12-02","w":8,"ph":"P1","tasks":[{"k":"练习","t":"回看第 6 章，列表和字典各写 1 个小例子","d":"","m":45,"l":null}]},{"date":"2026-12-03","w":8,"ph":"P1","tasks":[{"k":"练习","t":"回看第 8–9 章，文件读写加异常处理写 1 遍","d":"","m":45,"l":null}]},{"date":"2026-12-04","w":8,"ph":"P1","tasks":[{"k":"练习","t":"构思阶段检查脚本：要读什么文件、做什么处理、写出什么","d":"先在纸上写步骤","m":45,"l":null}]},{"date":"2026-12-05","w":8,"ph":"P1","tasks":[{"k":"练习","t":"阶段 1 检查：不看视频，独立写一个 50–100 行的脚本","d":"读 JSON → 用函数和循环处理 → 写回新文件","m":150,"l":null}]},{"date":"2026-12-06","w":8,"ph":"P1","tasks":[{"k":"复盘","t":"阶段 1 复盘","d":"Python 基础过关了吗？哪些地方还要补？","m":40,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2026-12-07","w":9,"ph":"P2","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 0 讲","d":"课程说明（B站合集第 1 集）","m":26,"l":"LHY"},{"k":"练习","t":"用 3 句话写下今天学到的东西","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2026-12-08","w":9,"ph":"P2","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 1 讲","d":"生成式 AI 是什么（B站合集第 2 集）","m":30,"l":"LHY"},{"k":"练习","t":"用 3 句话写下今天学到的东西","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2026-12-09","w":9,"ph":"P2","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 2 讲","d":"从「工具」变为「工具人」（B站合集第 3 集）","m":26,"l":"LHY"},{"k":"练习","t":"用 3 句话写下今天学到的东西","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2026-12-10","w":9,"ph":"P2","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 3 讲","d":"神奇咒语与提供更多信息（B站合集第 4 集）","m":35,"l":"LHY"},{"k":"练习","t":"用 3 句话写下今天学到的东西","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2026-12-11","w":9,"ph":"P2","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 4 讲","d":"拆解问题与使用工具（B站合集第 5 集）","m":47,"l":"LHY"},{"k":"练习","t":"用 3 句话写下今天学到的东西","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2026-12-12","w":9,"ph":"P2","tasks":[{"k":"练习","t":"回看本周 5 讲，记下 3 个没听懂的概念","d":"下周带着问题继续看","m":60,"l":null},{"k":"学习","t":"选看：Datawhale《动手学大模型应用开发》第 1 章","d":"LLM、RAG、LangChain 的基本介绍","m":60,"l":"LLMU"}]},{"date":"2026-12-13","w":9,"ph":"P2","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2026-12-14","w":10,"ph":"P2","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 5 讲","d":"让语言模型彼此合作（B站合集第 6 集）","m":25,"l":"LHY"},{"k":"练习","t":"用 3 句话写下今天学到的东西","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2026-12-15","w":10,"ph":"P2","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 6 讲","d":"修炼史一：自我学习（B站合集第 7 集）","m":34,"l":"LHY"},{"k":"练习","t":"用 3 句话写下今天学到的东西","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2026-12-16","w":10,"ph":"P2","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 7 讲","d":"修炼史二：名师指点（B站合集第 8 集）","m":38,"l":"LHY"},{"k":"练习","t":"用 3 句话写下今天学到的东西","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2026-12-17","w":10,"ph":"P2","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 8 讲","d":"修炼史三：RLHF（B站合集第 9 集）","m":37,"l":"LHY"},{"k":"练习","t":"用 3 句话写下今天学到的东西","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2026-12-18","w":10,"ph":"P2","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 9 讲","d":"以大型语言模型打造的 AI Agent（B站合集第 10 集）","m":25,"l":"LHY"},{"k":"练习","t":"用 3 句话写下今天学到的东西","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2026-12-19","w":10,"ph":"P2","tasks":[{"k":"练习","t":"写一页纸：预训练、指令微调、RLHF、Agent 分别是什么","d":"用自己的话写，能讲给别人听","m":90,"l":null}]},{"date":"2026-12-20","w":10,"ph":"P2","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2026-12-21","w":11,"ph":"P2","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 2 章：LLM API 基本概念","d":"","m":35,"l":"LLMU"}]},{"date":"2026-12-22","w":11,"ph":"P2","tasks":[{"k":"练习","t":"注册阿里云百炼或 DeepSeek 开放平台，拿到 API Key","d":"Key 只存在自己电脑上，不要截图外发","m":30,"l":null}]},{"date":"2026-12-23","w":11,"ph":"P2","tasks":[{"k":"练习","t":"运行 code/01_call_llm.py","d":"按 code/README.md 设置环境变量","m":40,"l":null}]},{"date":"2026-12-24","w":11,"ph":"P2","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 2 章：Prompt Engineering 部分","d":"","m":35,"l":"LLMU"}]},{"date":"2026-12-25","w":11,"ph":"P2","tasks":[{"k":"练习","t":"做 01_call_llm.py 文末的 3 道练习","d":"","m":40,"l":null}]},{"date":"2026-12-26","w":11,"ph":"P2","tasks":[{"k":"练习","t":"自己写一个调用程序：输入任意问题，让模型按固定格式回答","d":"","m":120,"l":null}]},{"date":"2026-12-27","w":11,"ph":"P2","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2026-12-28","w":12,"ph":"P2","tasks":[{"k":"学习","t":"吴恩达提示工程课 P1–P2","d":"课程介绍、Prompt 的构建原则","m":24,"l":"PROMPT"},{"k":"练习","t":"把今天的提示技巧用 API 试一次","d":"写在笔记本或手机备忘录里就行","m":15,"l":null}]},{"date":"2026-12-29","w":12,"ph":"P2","tasks":[{"k":"学习","t":"吴恩达提示工程课 P3–P4","d":"Prompt 迭代优化、文本总结","m":21,"l":"PROMPT"},{"k":"练习","t":"把今天的提示技巧用 API 试一次","d":"写在笔记本或手机备忘录里就行","m":15,"l":null}]},{"date":"2026-12-30","w":12,"ph":"P2","tasks":[{"k":"学习","t":"吴恩达提示工程课 P5–P6","d":"文本推理、文本转换","m":25,"l":"PROMPT"},{"k":"练习","t":"把今天的提示技巧用 API 试一次","d":"写在笔记本或手机备忘录里就行","m":15,"l":null}]},{"date":"2026-12-31","w":12,"ph":"P2","tasks":[{"k":"学习","t":"吴恩达提示工程课 P7–P8","d":"文本生成、聊天机器人","m":20,"l":"PROMPT"},{"k":"练习","t":"把今天的提示技巧用 API 试一次","d":"写在笔记本或手机备忘录里就行","m":15,"l":null}]},{"date":"2027-01-01","w":12,"ph":"P2","tasks":[{"k":"学习","t":"吴恩达提示工程课 P9","d":"课程完结；回看前 8 集的笔记","m":15,"l":"PROMPT"},{"k":"练习","t":"把今天的提示技巧用 API 试一次","d":"写在笔记本或手机备忘录里就行","m":15,"l":null}]},{"date":"2027-01-02","w":12,"ph":"P2","tasks":[{"k":"练习","t":"用 API 对比 3 种提示词写法","d":"同一个问题：直接问 / 加角色和格式 / 加示例，记录输出差异","m":120,"l":null}]},{"date":"2027-01-03","w":12,"ph":"P2","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-01-04","w":13,"ph":"P2","tasks":[{"k":"学习","t":"阿里云 ACA 官方课程（前半）第 1 次","d":"每次约 40 分钟，从上次停下的地方接着看","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-05","w":13,"ph":"P2","tasks":[{"k":"学习","t":"阿里云 ACA 官方课程（前半）第 2 次","d":"每次约 40 分钟，从上次停下的地方接着看","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-06","w":13,"ph":"P2","tasks":[{"k":"学习","t":"阿里云 ACA 官方课程（前半）第 3 次","d":"每次约 40 分钟，从上次停下的地方接着看","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-07","w":13,"ph":"P2","tasks":[{"k":"学习","t":"阿里云 ACA 官方课程（前半）第 4 次","d":"每次约 40 分钟，从上次停下的地方接着看","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-08","w":13,"ph":"P2","tasks":[{"k":"学习","t":"阿里云 ACA 官方课程（前半）第 5 次","d":"每次约 40 分钟，从上次停下的地方接着看","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-09","w":13,"ph":"P2","tasks":[{"k":"练习","t":"用 API 写一个提示词模板：输入问题，输出固定格式的 JSON","d":"","m":120,"l":null}]},{"date":"2027-01-10","w":13,"ph":"P2","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-01-11","w":14,"ph":"P2","tasks":[{"k":"考证","t":"预约 ACA 考试","d":"建议考试日：1 月 30 日（周六），线上考","m":10,"l":"ACA_CERT"},{"k":"学习","t":"阿里云 ACA 官方课程（后半）第 1 次","d":"每次约 40 分钟，从上次停下的地方接着看","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-12","w":14,"ph":"P2","tasks":[{"k":"学习","t":"阿里云 ACA 官方课程（后半）第 2 次","d":"每次约 40 分钟，从上次停下的地方接着看","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-13","w":14,"ph":"P2","tasks":[{"k":"学习","t":"阿里云 ACA 官方课程（后半）第 3 次","d":"每次约 40 分钟，从上次停下的地方接着看","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-14","w":14,"ph":"P2","tasks":[{"k":"学习","t":"阿里云 ACA 官方课程（后半）第 4 次","d":"每次约 40 分钟，从上次停下的地方接着看","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-15","w":14,"ph":"P2","tasks":[{"k":"学习","t":"阿里云 ACA 官方课程（后半）第 5 次","d":"每次约 40 分钟，从上次停下的地方接着看","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-16","w":14,"ph":"P2","tasks":[{"k":"练习","t":"把模板改成可以读入一个问题列表、批量输出","d":"","m":120,"l":null}]},{"date":"2027-01-17","w":14,"ph":"P2","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-01-18","w":15,"ph":"P2","tasks":[{"k":"练习","t":"对照 ACA 考纲，列出自己不熟的知识点","d":"","m":40,"l":"ACA_CERT"}]},{"date":"2027-01-19","w":15,"ph":"P2","tasks":[{"k":"学习","t":"回看 ACA 课程中不熟的部分（1）","d":"","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-20","w":15,"ph":"P2","tasks":[{"k":"学习","t":"回看 ACA 课程中不熟的部分（2）","d":"","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-21","w":15,"ph":"P2","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 12 讲","d":"检定大型语言模型能力（B站合集第 13 集）","m":46,"l":"LHY"}]},{"date":"2027-01-22","w":15,"ph":"P2","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 13 讲","d":"安全性议题（上）（B站合集第 14 集）","m":32,"l":"LHY"},{"k":"学习","t":"李宏毅生成式 AI 导论 第 14 讲","d":"安全性议题（下）（B站合集第 15 集）","m":16,"l":"LHY"}]},{"date":"2027-01-23","w":15,"ph":"P2","tasks":[{"k":"练习","t":"按考纲自测一遍，整理错题和薄弱点","d":"","m":120,"l":null}]},{"date":"2027-01-24","w":15,"ph":"P2","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-01-25","w":16,"ph":"P2","tasks":[{"k":"复盘","t":"考前复习：提示词工程","d":"看笔记和错题，不学新内容","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-26","w":16,"ph":"P2","tasks":[{"k":"复盘","t":"考前复习：RAG","d":"看笔记和错题，不学新内容","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-27","w":16,"ph":"P2","tasks":[{"k":"复盘","t":"考前复习：微调","d":"看笔记和错题，不学新内容","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-28","w":16,"ph":"P2","tasks":[{"k":"复盘","t":"考前复习：Agent","d":"看笔记和错题，不学新内容","m":40,"l":"ACA_COURSE"}]},{"date":"2027-01-29","w":16,"ph":"P2","tasks":[{"k":"考证","t":"检查线上考试环境","d":"电脑、摄像头、网络、安静的房间；确认考试时间","m":20,"l":"ACA_CERT"}]},{"date":"2027-01-30","w":16,"ph":"P2","tasks":[{"k":"考证","t":"参加阿里云大模型工程师 ACA 考试","d":"线上笔试，¥600","m":120,"l":"ACA_CERT"}]},{"date":"2027-01-31","w":16,"ph":"P2","tasks":[{"k":"复盘","t":"阶段 2 复盘","d":"考得怎么样？大模型的基本概念都清楚了吗？","m":40,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-02-01","w":17,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 1 周：Python 基本语法元素","d":"第 1 次，约 30 分钟，当复习看","m":30,"l":"PY_SONG"}]},{"date":"2027-02-02","w":17,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 1 周：Python 基本语法元素","d":"第 2 次，约 30 分钟，当复习看","m":30,"l":"PY_SONG"}]},{"date":"2027-02-03","w":17,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 1 周：Python 基本语法元素","d":"第 3 次，约 30 分钟，当复习看","m":30,"l":"PY_SONG"}]},{"date":"2027-02-04","w":17,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 1 周：Python 基本语法元素","d":"第 4 次，约 30 分钟，当复习看","m":30,"l":"PY_SONG"}]},{"date":"2027-02-05","w":17,"ph":"P3","tasks":[{"k":"休息","t":"除夕，休息","d":"今天没有任务，好好休息","m":0,"l":null}]},{"date":"2027-02-06","w":17,"ph":"P3","tasks":[{"k":"休息","t":"春节，休息","d":"今天没有任务，好好休息","m":0,"l":null}]},{"date":"2027-02-07","w":17,"ph":"P3","tasks":[{"k":"休息","t":"春节，休息","d":"今天没有任务，好好休息","m":0,"l":null}]},{"date":"2027-02-08","w":18,"ph":"P3","tasks":[{"k":"休息","t":"春节假期，休息","d":"今天没有任务，好好休息","m":0,"l":null}]},{"date":"2027-02-09","w":18,"ph":"P3","tasks":[{"k":"休息","t":"春节假期，休息","d":"今天没有任务，好好休息","m":0,"l":null}]},{"date":"2027-02-10","w":18,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 3 周：基本数据类型","d":"第 1 次，约 35 分钟","m":35,"l":"PY_SONG"}]},{"date":"2027-02-11","w":18,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 3 周：基本数据类型","d":"第 2 次，约 35 分钟","m":35,"l":"PY_SONG"}]},{"date":"2027-02-12","w":18,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 3 周：基本数据类型","d":"第 3 次，约 35 分钟","m":35,"l":"PY_SONG"}]},{"date":"2027-02-13","w":18,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 4 周：程序的控制结构","d":"","m":90,"l":"PY_SONG"},{"k":"练习","t":"做第 3–4 周的课后编程题","d":"","m":60,"l":null}]},{"date":"2027-02-14","w":18,"ph":"P3","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-02-15","w":19,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 5 周：函数和代码复用","d":"","m":35,"l":"PY_SONG"},{"k":"练习","t":"跟着敲一遍课上的代码","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2027-02-16","w":19,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 5 周：函数和代码复用","d":"","m":35,"l":"PY_SONG"},{"k":"练习","t":"跟着敲一遍课上的代码","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2027-02-17","w":19,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 6 周：组合数据类型","d":"","m":35,"l":"PY_SONG"},{"k":"练习","t":"跟着敲一遍课上的代码","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2027-02-18","w":19,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 6 周：组合数据类型","d":"","m":35,"l":"PY_SONG"},{"k":"练习","t":"跟着敲一遍课上的代码","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2027-02-19","w":19,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 6 周：组合数据类型","d":"","m":35,"l":"PY_SONG"},{"k":"练习","t":"跟着敲一遍课上的代码","d":"写在笔记本或手机备忘录里就行","m":10,"l":null}]},{"date":"2027-02-20","w":19,"ph":"P3","tasks":[{"k":"练习","t":"做第 5–6 周的课后编程题","d":"","m":150,"l":null}]},{"date":"2027-02-21","w":19,"ph":"P3","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-02-22","w":20,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 7 周：文件和数据格式化","d":"第 1 次","m":35,"l":"PY_SONG"}]},{"date":"2027-02-23","w":20,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 7 周：文件和数据格式化","d":"第 2 次","m":35,"l":"PY_SONG"}]},{"date":"2027-02-24","w":20,"ph":"P3","tasks":[{"k":"学习","t":"嵩天 Python 慕课 第 7 周：文件和数据格式化","d":"第 3 次","m":35,"l":"PY_SONG"}]},{"date":"2027-02-25","w":20,"ph":"P3","tasks":[{"k":"练习","t":"用 csv 模块读一个 CSV 文件，打印每一行","d":"","m":40,"l":null}]},{"date":"2027-02-26","w":20,"ph":"P3","tasks":[{"k":"练习","t":"把 CSV 的内容转成字典列表，存成 JSON","d":"","m":40,"l":null}]},{"date":"2027-02-27","w":20,"ph":"P3","tasks":[{"k":"练习","t":"完整练习：读 CSV → 统计 → 写成 JSON","d":"","m":150,"l":null}]},{"date":"2027-02-28","w":20,"ph":"P3","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-03-01","w":21,"ph":"P3","tasks":[{"k":"学习","t":"微软学习路径「AI 概念」模块 1–2","d":"AI-901 备考，中文官方课程","m":40,"l":"MS_P1"}]},{"date":"2027-03-02","w":21,"ph":"P3","tasks":[{"k":"练习","t":"安装 pypdf，读出一份 PDF 的第一页文字","d":"","m":40,"l":null}]},{"date":"2027-03-03","w":21,"ph":"P3","tasks":[{"k":"学习","t":"微软学习路径「AI 概念」模块 3–5","d":"AI-901 备考，中文官方课程","m":40,"l":"MS_P1"}]},{"date":"2027-03-04","w":21,"ph":"P3","tasks":[{"k":"练习","t":"读出整份 PDF，按段落切开","d":"","m":40,"l":null}]},{"date":"2027-03-05","w":21,"ph":"P3","tasks":[{"k":"学习","t":"微软学习路径「AI 概念」模块 6–7","d":"AI-901 备考，中文官方课程","m":40,"l":"MS_P1"}]},{"date":"2027-03-06","w":21,"ph":"P3","tasks":[{"k":"练习","t":"选一份保险公司官网公开的条款 PDF，完整切成段落并保存","d":"","m":150,"l":null}]},{"date":"2027-03-07","w":21,"ph":"P3","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-03-08","w":22,"ph":"P3","tasks":[{"k":"学习","t":"微软学习路径「Azure 上的 AI 应用和代理」模块 1–2","d":"AI-901 备考，中文官方课程","m":40,"l":"MS_P2"}]},{"date":"2027-03-09","w":22,"ph":"P3","tasks":[{"k":"练习","t":"把一段 PDF 文字交给大模型总结","d":"","m":40,"l":null}]},{"date":"2027-03-10","w":22,"ph":"P3","tasks":[{"k":"学习","t":"微软学习路径「Azure 上的 AI 应用和代理」模块 3–5","d":"AI-901 备考，中文官方课程","m":40,"l":"MS_P2"}]},{"date":"2027-03-11","w":22,"ph":"P3","tasks":[{"k":"练习","t":"循环处理所有段落，结果存成 JSON","d":"","m":40,"l":null}]},{"date":"2027-03-12","w":22,"ph":"P3","tasks":[{"k":"学习","t":"微软学习路径「Azure 上的 AI 应用和代理」模块 6–7","d":"AI-901 备考，中文官方课程","m":40,"l":"MS_P2"}]},{"date":"2027-03-13","w":22,"ph":"P3","tasks":[{"k":"练习","t":"给批量处理程序加上出错重试和进度打印","d":"","m":150,"l":null}]},{"date":"2027-03-14","w":22,"ph":"P3","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-03-15","w":23,"ph":"P3","tasks":[{"k":"考证","t":"预约 AI-901 考试","d":"建议考试日：3 月 27 日（周六）；考试有简体中文","m":15,"l":"AI901"}]},{"date":"2027-03-16","w":23,"ph":"P3","tasks":[{"k":"考证","t":"做认证页上的免费模拟测试","d":"记下错题","m":45,"l":"AI901"}]},{"date":"2027-03-17","w":23,"ph":"P3","tasks":[{"k":"学习","t":"回看错题对应的学习路径模块（1）","d":"","m":40,"l":"MS_P1"}]},{"date":"2027-03-18","w":23,"ph":"P3","tasks":[{"k":"学习","t":"回看错题对应的学习路径模块（2）","d":"","m":40,"l":"MS_P2"}]},{"date":"2027-03-19","w":23,"ph":"P3","tasks":[{"k":"练习","t":"整理第 21–22 周的代码，写清使用说明","d":"","m":40,"l":null}]},{"date":"2027-03-20","w":23,"ph":"P3","tasks":[{"k":"考证","t":"再做一次模拟测试，对比第一次的分数","d":"","m":60,"l":"AI901"},{"k":"练习","t":"用 3 份新的 PDF 跑一遍批量处理脚本，修好出现的问题","d":"","m":90,"l":null}]},{"date":"2027-03-21","w":23,"ph":"P3","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-03-22","w":24,"ph":"P3","tasks":[{"k":"复盘","t":"AI-901 考前复习","d":"AI 概念与负责任 AI","m":40,"l":"MS_P1"}]},{"date":"2027-03-23","w":24,"ph":"P3","tasks":[{"k":"复盘","t":"AI-901 考前复习","d":"生成式 AI 与 Agent","m":40,"l":"MS_P1"}]},{"date":"2027-03-24","w":24,"ph":"P3","tasks":[{"k":"复盘","t":"AI-901 考前复习","d":"语言、语音、视觉","m":40,"l":"MS_P1"}]},{"date":"2027-03-25","w":24,"ph":"P3","tasks":[{"k":"复盘","t":"AI-901 考前复习","d":"信息提取与 RAG","m":40,"l":"MS_P1"}]},{"date":"2027-03-26","w":24,"ph":"P3","tasks":[{"k":"考证","t":"检查考试环境","d":"线上考需要摄像头和安静的房间；确认考试时间","m":20,"l":"AI901"}]},{"date":"2027-03-27","w":24,"ph":"P3","tasks":[{"k":"考证","t":"参加 Microsoft AI-901 考试","d":"约 45 分钟","m":90,"l":"AI901"}]},{"date":"2027-03-28","w":24,"ph":"P3","tasks":[{"k":"复盘","t":"阶段 3 复盘","d":"Python 进阶练熟了吗？AI-901 考得怎么样？","m":40,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-03-29","w":25,"ph":"P4","tasks":[{"k":"学习","t":"吴恩达 Chat with Your Data 第 1–2 节","d":"课程介绍、文档加载","m":15,"l":"RAG"},{"k":"练习","t":"把今天的概念用一句话写下来","d":"写在笔记本或手机备忘录里就行","m":15,"l":null}]},{"date":"2027-03-30","w":25,"ph":"P4","tasks":[{"k":"学习","t":"吴恩达 Chat with Your Data 第 3 节","d":"文档切分","m":15,"l":"RAG"},{"k":"练习","t":"把今天的概念用一句话写下来","d":"写在笔记本或手机备忘录里就行","m":15,"l":null}]},{"date":"2027-03-31","w":25,"ph":"P4","tasks":[{"k":"学习","t":"吴恩达 Chat with Your Data 第 4 节","d":"向量库与嵌入","m":15,"l":"RAG"},{"k":"练习","t":"把今天的概念用一句话写下来","d":"写在笔记本或手机备忘录里就行","m":15,"l":null}]},{"date":"2027-04-01","w":25,"ph":"P4","tasks":[{"k":"学习","t":"吴恩达 Chat with Your Data 第 5 节","d":"检索","m":15,"l":"RAG"},{"k":"练习","t":"把今天的概念用一句话写下来","d":"写在笔记本或手机备忘录里就行","m":15,"l":null}]},{"date":"2027-04-02","w":25,"ph":"P4","tasks":[{"k":"学习","t":"吴恩达 Chat with Your Data 第 6 节","d":"问答","m":12,"l":"RAG"},{"k":"练习","t":"把今天的概念用一句话写下来","d":"写在笔记本或手机备忘录里就行","m":15,"l":null}]},{"date":"2027-04-03","w":25,"ph":"P4","tasks":[{"k":"练习","t":"跟着课程代码，在自己电脑上跑通文档加载和切分","d":"","m":150,"l":null}]},{"date":"2027-04-04","w":25,"ph":"P4","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-04-05","w":26,"ph":"P4","tasks":[{"k":"学习","t":"吴恩达 Chat with Your Data 第 7–8 节","d":"对话、总结","m":15,"l":"RAG"}]},{"date":"2027-04-06","w":26,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 3 章：Embedding API","d":"","m":40,"l":"LLMU"}]},{"date":"2027-04-07","w":26,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 3 章：数据读取与切片","d":"","m":40,"l":"LLMU"}]},{"date":"2027-04-08","w":26,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 3 章：向量数据库（上）","d":"","m":40,"l":"LLMU"}]},{"date":"2027-04-09","w":26,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 3 章：向量数据库（下）","d":"","m":40,"l":"LLMU"}]},{"date":"2027-04-10","w":26,"ph":"P4","tasks":[{"k":"练习","t":"从保险公司官网下载 10 份公开的健康险条款，建自己的向量库","d":"","m":150,"l":null}]},{"date":"2027-04-11","w":26,"ph":"P4","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-04-12","w":27,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 4 章：把 LLM 接入 LangChain（上）","d":"","m":40,"l":"LLMU"}]},{"date":"2027-04-13","w":27,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 4 章：把 LLM 接入 LangChain（下）","d":"","m":40,"l":"LLMU"}]},{"date":"2027-04-14","w":27,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 4 章：构建检索问答链（上）","d":"","m":40,"l":"LLMU"}]},{"date":"2027-04-15","w":27,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 4 章：构建检索问答链（下）","d":"","m":40,"l":"LLMU"}]},{"date":"2027-04-16","w":27,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 4 章：用 Streamlit 部署","d":"","m":40,"l":"LLMU"}]},{"date":"2027-04-17","w":27,"ph":"P4","tasks":[{"k":"练习","t":"跟着第 4 章，把课程的知识库助手完整跑通","d":"","m":150,"l":null}]},{"date":"2027-04-18","w":27,"ph":"P4","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-04-19","w":28,"ph":"P4","tasks":[{"k":"练习","t":"条款问答：条款切片并入库","d":"","m":40,"l":null}]},{"date":"2027-04-20","w":28,"ph":"P4","tasks":[{"k":"练习","t":"条款问答：写检索问答链","d":"","m":40,"l":null}]},{"date":"2027-04-21","w":28,"ph":"P4","tasks":[{"k":"练习","t":"条款问答：让回答带出处（条款名 + 条款号）","d":"","m":40,"l":null}]},{"date":"2027-04-22","w":28,"ph":"P4","tasks":[{"k":"练习","t":"条款问答：查不到时回答「条款中未找到」","d":"","m":40,"l":null}]},{"date":"2027-04-23","w":28,"ph":"P4","tasks":[{"k":"练习","t":"条款问答：加一个 Streamlit 界面","d":"","m":40,"l":null}]},{"date":"2027-04-24","w":28,"ph":"P4","tasks":[{"k":"练习","t":"完整跑通自己的条款问答，问 10 个问题试试","d":"","m":150,"l":null}]},{"date":"2027-04-25","w":28,"ph":"P4","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-04-26","w":29,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 5 章：评估生成部分（上）","d":"","m":40,"l":"LLMU"}]},{"date":"2027-04-27","w":29,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 5 章：评估生成部分（下）","d":"","m":40,"l":"LLMU"}]},{"date":"2027-04-28","w":29,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 5 章：评估检索部分","d":"","m":40,"l":"LLMU"}]},{"date":"2027-04-29","w":29,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 5 章：优化检索","d":"","m":40,"l":"LLMU"}]},{"date":"2027-04-30","w":29,"ph":"P4","tasks":[{"k":"学习","t":"《动手学大模型应用开发》第 5 章：优化生成","d":"","m":40,"l":"LLMU"}]},{"date":"2027-05-01","w":29,"ph":"P4","tasks":[{"k":"练习","t":"为自己的条款问答写 10 道测试题，记下答对几道","d":"","m":150,"l":null}]},{"date":"2027-05-02","w":29,"ph":"P4","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-05-03","w":30,"ph":"P4","tasks":[{"k":"学习","t":"阿里云 ACP 教程 2.3","d":"优化提示词改善回答质量","m":40,"l":"ACP_REPO"}]},{"date":"2027-05-04","w":30,"ph":"P4","tasks":[{"k":"学习","t":"阿里云 ACP 教程 2.4","d":"自动化评测答疑机器人的表现","m":40,"l":"ACP_REPO"}]},{"date":"2027-05-05","w":30,"ph":"P4","tasks":[{"k":"学习","t":"阿里云 ACP 教程 2.4","d":"自动化评测答疑机器人的表现","m":40,"l":"ACP_REPO"}]},{"date":"2027-05-06","w":30,"ph":"P4","tasks":[{"k":"学习","t":"阿里云 ACP 教程 2.5","d":"优化 RAG 应用提升问答准确度","m":40,"l":"ACP_REPO"}]},{"date":"2027-05-07","w":30,"ph":"P4","tasks":[{"k":"学习","t":"阿里云 ACP 教程 2.5","d":"优化 RAG 应用提升问答准确度","m":40,"l":"ACP_REPO"}]},{"date":"2027-05-08","w":30,"ph":"P4","tasks":[{"k":"练习","t":"再写 10 道测试题，凑满 20 道，跑一遍评估","d":"","m":150,"l":null}]},{"date":"2027-05-09","w":30,"ph":"P4","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-05-10","w":31,"ph":"P4","tasks":[{"k":"练习","t":"改进条款问答：列出答错的题，逐条分析原因","d":"","m":40,"l":null}]},{"date":"2027-05-11","w":31,"ph":"P4","tasks":[{"k":"练习","t":"改进条款问答：调整切片大小再测","d":"","m":40,"l":null}]},{"date":"2027-05-12","w":31,"ph":"P4","tasks":[{"k":"练习","t":"改进条款问答：调整检索数量或加重排再测","d":"","m":40,"l":null}]},{"date":"2027-05-13","w":31,"ph":"P4","tasks":[{"k":"练习","t":"改进条款问答：改提示词再测","d":"","m":40,"l":null}]},{"date":"2027-05-14","w":31,"ph":"P4","tasks":[{"k":"练习","t":"改进条款问答：记录每次改动前后的正确率","d":"","m":40,"l":null}]},{"date":"2027-05-15","w":31,"ph":"P4","tasks":[{"k":"练习","t":"整理 RAG 学习笔记：一页纸画出完整流程","d":"","m":120,"l":null}]},{"date":"2027-05-16","w":31,"ph":"P4","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-05-17","w":32,"ph":"P4","tasks":[{"k":"学习","t":"阿里云 ACP 教程 2.0","d":"项目背景","m":40,"l":"ACP_REPO"}]},{"date":"2027-05-18","w":32,"ph":"P4","tasks":[{"k":"学习","t":"阿里云 ACP 教程 2.1","d":"用大模型构建新人答疑机器人","m":40,"l":"ACP_REPO"}]},{"date":"2027-05-19","w":32,"ph":"P4","tasks":[{"k":"学习","t":"阿里云 ACP 教程 2.1","d":"用大模型构建新人答疑机器人","m":40,"l":"ACP_REPO"}]},{"date":"2027-05-20","w":32,"ph":"P4","tasks":[{"k":"学习","t":"阿里云 ACP 教程 2.2","d":"扩展答疑机器人的知识范围","m":40,"l":"ACP_REPO"}]},{"date":"2027-05-21","w":32,"ph":"P4","tasks":[{"k":"学习","t":"阿里云 ACP 教程 2.2","d":"扩展答疑机器人的知识范围","m":40,"l":"ACP_REPO"}]},{"date":"2027-05-22","w":32,"ph":"P4","tasks":[{"k":"练习","t":"跑通 ACP 教程第 2 章的 Notebook","d":"","m":150,"l":"ACP_REPO"}]},{"date":"2027-05-23","w":32,"ph":"P4","tasks":[{"k":"复盘","t":"阶段 4 复盘","d":"能独立讲清 RAG 的每一步吗？","m":40,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-05-24","w":33,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face Agents 课程 第 1 单元 第 1 次","d":"从上次停下的地方接着学，约 40 分钟","m":40,"l":"HF"}]},{"date":"2027-05-25","w":33,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face Agents 课程 第 1 单元 第 2 次","d":"从上次停下的地方接着学，约 40 分钟","m":40,"l":"HF"}]},{"date":"2027-05-26","w":33,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face Agents 课程 第 1 单元 第 3 次","d":"从上次停下的地方接着学，约 40 分钟","m":40,"l":"HF"}]},{"date":"2027-05-27","w":33,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face Agents 课程 第 1 单元 第 4 次","d":"从上次停下的地方接着学，约 40 分钟","m":40,"l":"HF"}]},{"date":"2027-05-28","w":33,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face Agents 课程 第 1 单元 第 5 次","d":"从上次停下的地方接着学，约 40 分钟","m":40,"l":"HF"}]},{"date":"2027-05-29","w":33,"ph":"P5","tasks":[{"k":"练习","t":"跑通课程里的第一个 Agent 例子","d":"","m":150,"l":"HF"}]},{"date":"2027-05-30","w":33,"ph":"P5","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-05-31","w":34,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face Agents 课程 第 1 单元 第 6 次","d":"","m":40,"l":"HF"}]},{"date":"2027-06-01","w":34,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face Agents 课程 第 1 单元 第 7 次","d":"","m":40,"l":"HF"}]},{"date":"2027-06-02","w":34,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face Agents 课程 第 1 单元 第 8 次","d":"","m":40,"l":"HF"}]},{"date":"2027-06-03","w":34,"ph":"P5","tasks":[{"k":"学习","t":"完成第 1 单元测验","d":"可领取免费的基础证书","m":30,"l":"HF"}]},{"date":"2027-06-04","w":34,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 3.0、3.1","d":"从回答问题到解决问题；Agent 基础与工具调用","m":40,"l":"ACP_REPO"}]},{"date":"2027-06-05","w":34,"ph":"P5","tasks":[{"k":"练习","t":"用工具调用写一个小练习：让模型调用你写的计算函数","d":"","m":150,"l":null}]},{"date":"2027-06-06","w":34,"ph":"P5","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-06-07","w":35,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 1：Agentic 工作流入门（上）","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-06-08","w":35,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 1：Agentic 工作流入门（下）","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-06-09","w":35,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 2：反思（上）","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-06-10","w":35,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 2：反思（中）","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-06-11","w":35,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 2：反思（下）","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-06-12","w":35,"ph":"P5","tasks":[{"k":"练习","t":"跑一遍课程里「反思」的代码示例","d":"","m":150,"l":"AGENTIC"}]},{"date":"2027-06-13","w":35,"ph":"P5","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-06-14","w":36,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 3：工具调用（上）","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-06-15","w":36,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 3：工具调用（中）","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-06-16","w":36,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 3：工具调用（下）","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-06-17","w":36,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 3：MCP","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-06-18","w":36,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 3：回顾","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-06-19","w":36,"ph":"P5","tasks":[{"k":"练习","t":"跑一遍课程里「工具调用」的代码示例","d":"","m":150,"l":"AGENTIC"}]},{"date":"2027-06-20","w":36,"ph":"P5","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-06-21","w":37,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face Agents 课程 第 2 单元：框架概览","d":"","m":40,"l":"HF"}]},{"date":"2027-06-22","w":37,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face Agents 课程 第 2 单元：smolagents","d":"","m":40,"l":"HF"}]},{"date":"2027-06-23","w":37,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face Agents 课程 第 2 单元：LlamaIndex","d":"","m":40,"l":"HF"}]},{"date":"2027-06-24","w":37,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face Agents 课程 第 2 单元：LangGraph（上）","d":"","m":40,"l":"HF"}]},{"date":"2027-06-25","w":37,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face Agents 课程 第 2 单元：LangGraph（下）","d":"","m":40,"l":"HF"}]},{"date":"2027-06-26","w":37,"ph":"P5","tasks":[{"k":"练习","t":"跑通一个 LangGraph 示例","d":"","m":150,"l":"HF"}]},{"date":"2027-06-27","w":37,"ph":"P5","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-06-28","w":38,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 4：构建 Agentic AI 的实用技巧（评测）","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-06-29","w":38,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 4：错误分析","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-06-30","w":38,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 4：成本与延迟","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-07-01","w":38,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 5：规划","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-07-02","w":38,"ph":"P5","tasks":[{"k":"学习","t":"吴恩达 Agentic AI 模块 5：多智能体","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-07-03","w":38,"ph":"P5","tasks":[{"k":"学习","t":"Hugging Face 第 3 单元：Agentic RAG","d":"","m":150,"l":"HF"}]},{"date":"2027-07-04","w":38,"ph":"P5","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-07-05","w":39,"ph":"P5","tasks":[{"k":"考证","t":"预约 ACP 线下考试","d":"建议考试日：8 月 14 日（周六）；¥1200","m":15,"l":"LLM_CERT"},{"k":"学习","t":"阿里云 ACP 教程 3.2","d":"让 Agent 学会规划与执行","m":30,"l":"ACP_REPO"}]},{"date":"2027-07-06","w":39,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 3.3","d":"用多 Agent 实现团队协作","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-07","w":39,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 3.4","d":"用 Memory 让 Agent 积累经验","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-08","w":39,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 3.5","d":"用 Skill 固化可复用流程","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-09","w":39,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 3.6","d":"用评测驱动 Agent 开发","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-10","w":39,"ph":"P5","tasks":[{"k":"练习","t":"跑通 ACP 教程第 3 章的 Notebook（3.1–3.6）","d":"","m":150,"l":"ACP_REPO"}]},{"date":"2027-07-11","w":39,"ph":"P5","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-07-12","w":40,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 3.7","d":"Qwen Code 实践","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-13","w":40,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 3.8","d":"Harness 与 Loop Engineering","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-14","w":40,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 4.0","d":"走向生产环境","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-15","w":40,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 4.1","d":"用蒸馏让小模型掌握专业能力","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-16","w":40,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 4.1","d":"用蒸馏让小模型掌握专业能力","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-17","w":40,"ph":"P5","tasks":[{"k":"练习","t":"跑通 ACP 教程 3.7–4.1 的 Notebook","d":"","m":150,"l":"ACP_REPO"}]},{"date":"2027-07-18","w":40,"ph":"P5","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-07-19","w":41,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 4.2","d":"部署模型","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-20","w":41,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 4.3","d":"大模型应用生产实践","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-21","w":41,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 4.4","d":"大模型应用安全合规","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-22","w":41,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 5.1","d":"用 AI 为业务提效","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-23","w":41,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 教程 5.2","d":"总结与展望","m":40,"l":"ACP_REPO"}]},{"date":"2027-07-24","w":41,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 官方课程：对照教程查漏","d":"","m":150,"l":"ACP_COURSE"}]},{"date":"2027-07-25","w":41,"ph":"P5","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-07-26","w":42,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 官方课程 第 1 次","d":"重点看教程里没讲透的部分","m":40,"l":"ACP_COURSE"}]},{"date":"2027-07-27","w":42,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 官方课程 第 2 次","d":"重点看教程里没讲透的部分","m":40,"l":"ACP_COURSE"}]},{"date":"2027-07-28","w":42,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 官方课程 第 3 次","d":"重点看教程里没讲透的部分","m":40,"l":"ACP_COURSE"}]},{"date":"2027-07-29","w":42,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 官方课程 第 4 次","d":"重点看教程里没讲透的部分","m":40,"l":"ACP_COURSE"}]},{"date":"2027-07-30","w":42,"ph":"P5","tasks":[{"k":"学习","t":"阿里云 ACP 官方课程 第 5 次","d":"重点看教程里没讲透的部分","m":40,"l":"ACP_COURSE"}]},{"date":"2027-07-31","w":42,"ph":"P5","tasks":[{"k":"学习","t":"选做：Hugging Face 第 4 单元最终项目","d":"完成可领取免费的完成证书","m":150,"l":"HF"}]},{"date":"2027-08-01","w":42,"ph":"P5","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-08-02","w":43,"ph":"P5","tasks":[{"k":"复盘","t":"ACP 按考纲复习：提示词与上下文工程","d":"","m":45,"l":"ACP_REPO"}]},{"date":"2027-08-03","w":43,"ph":"P5","tasks":[{"k":"复盘","t":"ACP 按考纲复习：RAG 与评测","d":"","m":45,"l":"ACP_REPO"}]},{"date":"2027-08-04","w":43,"ph":"P5","tasks":[{"k":"复盘","t":"ACP 按考纲复习：模型优化（蒸馏、LoRA）","d":"","m":45,"l":"ACP_REPO"}]},{"date":"2027-08-05","w":43,"ph":"P5","tasks":[{"k":"复盘","t":"ACP 按考纲复习：Agent（工具、规划、多 Agent、Memory）","d":"","m":45,"l":"ACP_REPO"}]},{"date":"2027-08-06","w":43,"ph":"P5","tasks":[{"k":"复盘","t":"ACP 按考纲复习：部署、成本与安全合规","d":"","m":45,"l":"ACP_REPO"}]},{"date":"2027-08-07","w":43,"ph":"P5","tasks":[{"k":"练习","t":"整套自测，整理错题","d":"","m":150,"l":null}]},{"date":"2027-08-08","w":43,"ph":"P5","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-08-09","w":44,"ph":"P5","tasks":[{"k":"复盘","t":"ACP 考前复习：错题和薄弱点","d":"第 1 次","m":45,"l":"ACP_REPO"}]},{"date":"2027-08-10","w":44,"ph":"P5","tasks":[{"k":"复盘","t":"ACP 考前复习：错题和薄弱点","d":"第 2 次","m":45,"l":"ACP_REPO"}]},{"date":"2027-08-11","w":44,"ph":"P5","tasks":[{"k":"复盘","t":"ACP 考前复习：错题和薄弱点","d":"第 3 次","m":45,"l":"ACP_REPO"}]},{"date":"2027-08-12","w":44,"ph":"P5","tasks":[{"k":"复盘","t":"ACP 考前复习：错题和薄弱点","d":"第 4 次","m":45,"l":"ACP_REPO"}]},{"date":"2027-08-13","w":44,"ph":"P5","tasks":[{"k":"考证","t":"确认考点地址、考试时间和证件","d":"线下考试","m":15,"l":"LLM_CERT"}]},{"date":"2027-08-14","w":44,"ph":"P5","tasks":[{"k":"考证","t":"参加阿里云大模型 ACP 考试","d":"线下笔试，¥1200","m":150,"l":"LLM_CERT"}]},{"date":"2027-08-15","w":44,"ph":"P5","tasks":[{"k":"复盘","t":"阶段 5 复盘","d":"Agent 的关键概念都能讲清吗？","m":40,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-08-16","w":45,"ph":"P6","tasks":[{"k":"学习","t":"回看笔记里标记为没学懂的内容","d":"每天挑 1 个主题","m":40,"l":null}]},{"date":"2027-08-17","w":45,"ph":"P6","tasks":[{"k":"学习","t":"回看笔记里标记为没学懂的内容","d":"每天挑 1 个主题","m":40,"l":null}]},{"date":"2027-08-18","w":45,"ph":"P6","tasks":[{"k":"学习","t":"回看笔记里标记为没学懂的内容","d":"每天挑 1 个主题","m":40,"l":null}]},{"date":"2027-08-19","w":45,"ph":"P6","tasks":[{"k":"学习","t":"回看笔记里标记为没学懂的内容","d":"每天挑 1 个主题","m":40,"l":null}]},{"date":"2027-08-20","w":45,"ph":"P6","tasks":[{"k":"学习","t":"回看笔记里标记为没学懂的内容","d":"每天挑 1 个主题","m":40,"l":null}]},{"date":"2027-08-21","w":45,"ph":"P6","tasks":[{"k":"练习","t":"把这一年写的代码整理到 code 文件夹，每个都写一句说明","d":"","m":150,"l":null}]},{"date":"2027-08-22","w":45,"ph":"P6","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-08-23","w":46,"ph":"P6","tasks":[{"k":"学习","t":"回看笔记里标记为没学懂的内容","d":"每天挑 1 个主题","m":40,"l":null}]},{"date":"2027-08-24","w":46,"ph":"P6","tasks":[{"k":"学习","t":"回看笔记里标记为没学懂的内容","d":"每天挑 1 个主题","m":40,"l":null}]},{"date":"2027-08-25","w":46,"ph":"P6","tasks":[{"k":"学习","t":"回看笔记里标记为没学懂的内容","d":"每天挑 1 个主题","m":40,"l":null}]},{"date":"2027-08-26","w":46,"ph":"P6","tasks":[{"k":"学习","t":"回看笔记里标记为没学懂的内容","d":"每天挑 1 个主题","m":40,"l":null}]},{"date":"2027-08-27","w":46,"ph":"P6","tasks":[{"k":"学习","t":"回看笔记里标记为没学懂的内容","d":"每天挑 1 个主题","m":40,"l":null}]},{"date":"2027-08-28","w":46,"ph":"P6","tasks":[{"k":"练习","t":"把这一年写的代码整理到 code 文件夹，每个都写一句说明","d":"","m":150,"l":null}]},{"date":"2027-08-29","w":46,"ph":"P6","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-08-30","w":47,"ph":"P6","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 10 讲","d":"浅谈 Transformer（B站合集第 11 集）","m":38,"l":"LHY"}]},{"date":"2027-08-31","w":47,"ph":"P6","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 11 讲","d":"可解释性（B站合集第 12 集）","m":45,"l":"LHY"}]},{"date":"2027-09-01","w":47,"ph":"P6","tasks":[{"k":"学习","t":"吴恩达 Agentic AI：补看没看完的视频","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-09-02","w":47,"ph":"P6","tasks":[{"k":"学习","t":"吴恩达 Agentic AI：补看没看完的视频","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-09-03","w":47,"ph":"P6","tasks":[{"k":"学习","t":"吴恩达 Agentic AI：补看没看完的视频","d":"","m":40,"l":"AGENTIC"}]},{"date":"2027-09-04","w":47,"ph":"P6","tasks":[{"k":"练习","t":"选一个感兴趣的主题，写一篇学习笔记","d":"","m":120,"l":null}]},{"date":"2027-09-05","w":47,"ph":"P6","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-09-06","w":48,"ph":"P6","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 15 讲","d":"生成策略（B站合集第 16 集）","m":45,"l":"LHY"}]},{"date":"2027-09-07","w":48,"ph":"P6","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 16 讲","d":"Speculative Decoding（B站合集第 17 集）","m":13,"l":"LHY"}]},{"date":"2027-09-08","w":48,"ph":"P6","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 17 讲","d":"影像生成（上）（B站合集第 18 集）","m":50,"l":"LHY"}]},{"date":"2027-09-09","w":48,"ph":"P6","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 第 18 讲","d":"影像生成（下）（B站合集第 19 集）","m":37,"l":"LHY"}]},{"date":"2027-09-10","w":48,"ph":"P6","tasks":[{"k":"学习","t":"李宏毅生成式 AI 导论 补充讲","d":"GPT-4o 语音技术猜测（B站合集第 20 集）","m":38,"l":"LHY"}]},{"date":"2027-09-11","w":48,"ph":"P6","tasks":[{"k":"练习","t":"选一个感兴趣的主题，写一篇学习笔记","d":"","m":120,"l":null}]},{"date":"2027-09-12","w":48,"ph":"P6","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-09-13","w":49,"ph":"P6","tasks":[{"k":"学习","t":"自选：回看这一年最有用的一门课","d":"","m":40,"l":null}]},{"date":"2027-09-14","w":49,"ph":"P6","tasks":[{"k":"学习","t":"自选：回看这一年最有用的一门课","d":"","m":40,"l":null}]},{"date":"2027-09-15","w":49,"ph":"P6","tasks":[{"k":"学习","t":"自选：回看这一年最有用的一门课","d":"","m":40,"l":null}]},{"date":"2027-09-16","w":49,"ph":"P6","tasks":[{"k":"学习","t":"自选：回看这一年最有用的一门课","d":"","m":40,"l":null}]},{"date":"2027-09-17","w":49,"ph":"P6","tasks":[{"k":"学习","t":"自选：回看这一年最有用的一门课","d":"","m":40,"l":null}]},{"date":"2027-09-18","w":49,"ph":"P6","tasks":[{"k":"练习","t":"整理学习笔记，按阶段归档","d":"","m":120,"l":null}]},{"date":"2027-09-19","w":49,"ph":"P6","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-09-20","w":50,"ph":"P6","tasks":[{"k":"练习","t":"改进一个自己写过的程序","d":"例如给条款问答加新功能","m":40,"l":null}]},{"date":"2027-09-21","w":50,"ph":"P6","tasks":[{"k":"练习","t":"改进一个自己写过的程序","d":"例如给条款问答加新功能","m":40,"l":null}]},{"date":"2027-09-22","w":50,"ph":"P6","tasks":[{"k":"练习","t":"改进一个自己写过的程序","d":"例如给条款问答加新功能","m":40,"l":null}]},{"date":"2027-09-23","w":50,"ph":"P6","tasks":[{"k":"练习","t":"改进一个自己写过的程序","d":"例如给条款问答加新功能","m":40,"l":null}]},{"date":"2027-09-24","w":50,"ph":"P6","tasks":[{"k":"练习","t":"改进一个自己写过的程序","d":"例如给条款问答加新功能","m":40,"l":null}]},{"date":"2027-09-25","w":50,"ph":"P6","tasks":[{"k":"练习","t":"整理学习笔记，按阶段归档","d":"","m":120,"l":null}]},{"date":"2027-09-26","w":50,"ph":"P6","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-09-27","w":51,"ph":"P6","tasks":[{"k":"复盘","t":"年度回顾：Python","d":"这一块学到了什么、还缺什么","m":40,"l":null}]},{"date":"2027-09-28","w":51,"ph":"P6","tasks":[{"k":"复盘","t":"年度回顾：大模型与提示词","d":"这一块学到了什么、还缺什么","m":40,"l":null}]},{"date":"2027-09-29","w":51,"ph":"P6","tasks":[{"k":"复盘","t":"年度回顾：RAG","d":"这一块学到了什么、还缺什么","m":40,"l":null}]},{"date":"2027-09-30","w":51,"ph":"P6","tasks":[{"k":"复盘","t":"年度回顾：Agent","d":"这一块学到了什么、还缺什么","m":40,"l":null}]},{"date":"2027-10-01","w":51,"ph":"P6","tasks":[{"k":"复盘","t":"年度回顾：证书与备考","d":"这一块学到了什么、还缺什么","m":40,"l":null}]},{"date":"2027-10-02","w":51,"ph":"P6","tasks":[{"k":"复盘","t":"年度复盘","d":"三张证书、学过的课、写过的代码，各列一个清单","m":120,"l":null}]},{"date":"2027-10-03","w":51,"ph":"P6","tasks":[{"k":"复盘","t":"复习本周内容","d":"回看本周笔记和代码，把没懂的地方标出来","m":60,"l":null},{"k":"复盘","t":"写周复盘","d":"在下方笔记里写三行：完成了什么、卡在哪里、下周最重要的一件事","m":20,"l":null}]},{"date":"2027-10-04","w":52,"ph":"P6","tasks":[{"k":"复盘","t":"调研下一年方向","d":"例如微软 AI-103（AI 应用与 Agent 开发者）","m":30,"l":null}]},{"date":"2027-10-05","w":52,"ph":"P6","tasks":[{"k":"复盘","t":"调研下一年方向","d":"例如微软 AI-103（AI 应用与 Agent 开发者）","m":30,"l":null}]},{"date":"2027-10-06","w":52,"ph":"P6","tasks":[{"k":"复盘","t":"调研下一年方向","d":"例如微软 AI-103（AI 应用与 Agent 开发者）","m":30,"l":null}]},{"date":"2027-10-07","w":52,"ph":"P6","tasks":[{"k":"复盘","t":"调研下一年方向","d":"例如微软 AI-103（AI 应用与 Agent 开发者）","m":30,"l":null}]},{"date":"2027-10-08","w":52,"ph":"P6","tasks":[{"k":"复盘","t":"调研下一年方向","d":"例如微软 AI-103（AI 应用与 Agent 开发者）","m":30,"l":null}]},{"date":"2027-10-09","w":52,"ph":"P6","tasks":[{"k":"复盘","t":"定下一年的学习计划","d":"","m":90,"l":null}]},{"date":"2027-10-10","w":52,"ph":"P6","tasks":[{"k":"复盘","t":"年度总结","d":"恭喜完成 52 周计划","m":60,"l":null}]}],"exams":{"ACA":"2027-01-30","AI901":"2027-03-27","ACP":"2027-08-14"}};
+const TYPE = { 学习: "var(--blue)", 练习: "var(--green)", 考证: "var(--orange)", 复盘: "var(--purple)", 休息: "var(--gray)" };
+const WD = ["日", "一", "二", "三", "四", "五", "六"];
+const DAYS = DATA.days;
+const byDate = Object.fromEntries(DAYS.map((d, i) => [d.date, i]));
 
-function wkDate(w, end) {
-  const d = new Date(START.getTime() + (7 * (w - 1) + (end ? 6 : 0)) * DAY);
-  const p = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", month: "numeric", day: "numeric" }).formatToParts(d);
-  return p.find(x => x.type === "month").value + "/" + p.find(x => x.type === "day").value;
-}
-function pad(n) { return String(n).padStart(2, "0"); }
-function itemId(it) { return "w" + pad(it.w[0]); }
-function taskId(it, i) { return itemId(it) + "-" + (i + 1); }
-function weekLabel(it) { return it.w[0] === it.w[1] ? "W" + it.w[0] : "W" + it.w[0] + "–" + it.w[1]; }
+function localISO(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function parse(iso) { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d); }
+function addDays(iso, n) { const d = parse(iso); d.setDate(d.getDate() + n); return localISO(d); }
+function diffDays(a, b) { return Math.round((parse(b) - parse(a)) / 86400000); }
 
-const nowWeek = Math.min(52, Math.max(1, Math.floor((Date.now() - START.getTime()) / (7 * DAY)) + 1));
-const currentItem = PLAN.items.find(it => nowWeek >= it.w[0] && nowWeek <= it.w[1]) || PLAN.items[0];
-const currentPhase = PLAN.phases.find(p => nowWeek >= p.range[0] && nowWeek <= p.range[1]) || PLAN.phases[0];
-
-const state = { done: {}, notes: {}, filter: null, hideDone: false, canWrite: true, mode: "local" };
+const REAL_TODAY = localISO(new Date());
+const FIRST = DAYS[0].date, LAST = DAYS[DAYS.length - 1].date;
+const TODAY = REAL_TODAY < FIRST ? FIRST : REAL_TODAY > LAST ? LAST : REAL_TODAY;
+const state = { sel: TODAY, done: {}, notes: {}, canWrite: true, mode: "local", view: "day" };
 let db = null;
 
-/* ---------- local cache (per-viewer fallback) ---------- */
-const LS = "ins-ai-board-v1";
-function loadLocal() {
-  try { const v = JSON.parse(localStorage.getItem(LS) || "{}"); state.done = v.done || {}; state.notes = v.notes || {}; } catch (e) {}
-}
-function saveLocal() {
-  try { localStorage.setItem(LS, JSON.stringify({ done: state.done, notes: state.notes })); } catch (e) {}
-}
+const LS = "ins-ai-daily-v1";
+function loadLocal() { try { const v = JSON.parse(localStorage.getItem(LS) || "{}"); state.done = v.done || {}; state.notes = v.notes || {}; } catch (e) {} }
+function saveLocal() { try { localStorage.setItem(LS, JSON.stringify({ done: state.done, notes: state.notes })); } catch (e) {} }
 
-/* ---------- render ---------- */
 function el(tag, attrs, ...kids) {
   const n = document.createElement(tag);
   for (const k in attrs || {}) {
-    if (k === "class") n.className = attrs[k];
-    else if (k === "text") n.textContent = attrs[k];
-    else if (k.startsWith("on")) n.addEventListener(k.slice(2), attrs[k]);
-    else if (attrs[k] !== null && attrs[k] !== undefined && attrs[k] !== false) n.setAttribute(k, attrs[k]);
+    const v = attrs[k];
+    if (v === null || v === undefined || v === false) continue;
+    if (k === "class") n.className = v; else if (k === "text") n.textContent = v;
+    else if (k === "style") n.setAttribute("style", v);
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v);
   }
   for (const c of kids) if (c != null) n.append(c);
   return n;
 }
+const SVGNS = "http://www.w3.org/2000/svg";
+function svg(tag, attrs) { const n = document.createElementNS(SVGNS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; }
 
-function allTasks() {
-  const out = [];
-  PLAN.items.forEach(it => it.tasks.forEach((t, i) => out.push({ id: taskId(it, i), track: t[0], text: t[1], it })));
-  return out;
+function tid(date, i) { return date + "-" + (i + 1); }
+function realTasks(day) { return day.tasks.map((t, i) => ({ ...t, id: tid(day.date, i) })).filter(t => t.k !== "休息"); }
+function dayProgress(day) { const ts = realTasks(day); return { n: ts.filter(t => state.done[t.id]).length, total: ts.length }; }
+function weekOf(date) { return DAYS[byDate[date]].w; }
+function daysOfWeek(w) { return DAYS.filter(d => d.w === w); }
+
+function fmtDate(iso, withWd) {
+  const d = parse(iso);
+  return `${d.getMonth() + 1}月${d.getDate()}日` + (withWd ? ` 星期${WD[d.getDay()]}` : "");
 }
 
-function renderSummary() {
-  const tasks = allTasks();
-  const done = tasks.filter(t => state.done[t.id]).length;
-  const pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
-  document.getElementById("pct").firstChild.nodeValue = pct;
-  document.getElementById("pctbar").style.width = pct + "%";
-  document.getElementById("pctnum").textContent = `已完成 ${done} / ${tasks.length} 项任务 · 当前第 ${nowWeek} 周`;
-  const tr = document.getElementById("tracks");
-  tr.replaceChildren(...TRACKS.map(k => {
-    const all = tasks.filter(t => t.track === k), d = all.filter(t => state.done[t.id]).length;
-    const p = all.length ? d / all.length * 100 : 0;
-    return el("div", { class: "trk" }, el("span", { class: "tag", "data-t": k, text: k }),
-      el("div", { class: "bar" }, el("i", { style: `width:${p}%;background:var(--t-${TRACK_TOKEN[k]})` })),
-      el("span", { text: `${d}/${all.length}` }));
+function streak() {
+  let s = 0, cur = TODAY;
+  const p0 = dayProgress(DAYS[byDate[cur]]);
+  if (!(p0.total && p0.n === p0.total)) cur = addDays(cur, -1);
+  while (byDate[cur] !== undefined) {
+    const p = dayProgress(DAYS[byDate[cur]]);
+    if (p.total === 0) { cur = addDays(cur, -1); continue; }
+    if (p.n === p.total) { s++; cur = addDays(cur, -1); } else break;
+  }
+  return s;
+}
+
+/* ---------- day view ---------- */
+function renderHeader() {
+  const isToday = state.sel === REAL_TODAY;
+  document.getElementById("dateLabel").textContent = state.view === "year" ? "2026年10月13日 – 2027年10月10日 · 52 周" : fmtDate(state.sel, true) + ` · 第 ${diffDays(FIRST, state.sel) + 1} 天`;
+  const rel = diffDays(REAL_TODAY, state.sel);
+  document.getElementById("bigTitle").textContent = state.view === "year" ? "全年计划" : rel === 0 ? "今天" : rel === 1 ? "明天" : rel === -1 ? "昨天" : fmtDate(state.sel);
+  document.getElementById("backToday").hidden = state.view === "year" || isToday || REAL_TODAY !== TODAY;
+}
+
+function renderWeek() {
+  const nav = document.getElementById("week");
+  const w = weekOf(state.sel);
+  const ds = daysOfWeek(w);
+  const first = parse(ds[0].date);
+  // Always show Mon–Sun; week 1 starts on a Tuesday, so pad Monday.
+  const mon = new Date(first); mon.setDate(first.getDate() - ((first.getDay() + 6) % 7));
+  const cells = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(mon); d.setDate(mon.getDate() + i);
+    const iso = localISO(d), idx = byDate[iso];
+    if (idx === undefined) { cells.push(el("span", { class: "day off" }, el("span", { class: "wd", text: WD[d.getDay()] }), el("span", { class: "num", text: d.getDate() }), el("span", { class: "dot" }))); continue; }
+    const p = dayProgress(DAYS[idx]);
+    const cls = ["day", iso === REAL_TODAY ? "is-today" : "", p.total && p.n === p.total ? "done" : p.n ? "part" : ""].join(" ");
+    cells.push(el("button", { class: cls, type: "button", "aria-current": iso === state.sel ? "date" : null, "aria-label": fmtDate(iso, true),
+      onclick: () => { state.sel = iso; renderDay(); } },
+      el("span", { class: "wd", text: WD[d.getDay()] }), el("span", { class: "num", text: d.getDate() }), el("span", { class: "dot" })));
+  }
+  const prevW = w > 1 ? daysOfWeek(w - 1) : null, nextW = w < 52 ? daysOfWeek(w + 1) : null;
+  nav.replaceChildren(
+    el("button", { class: "chev", type: "button", "aria-label": "上一周", disabled: !prevW, onclick: () => { state.sel = prevW[0].date; renderDay(); } }, "‹"),
+    ...cells,
+    el("button", { class: "chev", type: "button", "aria-label": "下一周", disabled: !nextW, onclick: () => { state.sel = nextW[0].date; renderDay(); } }, "›"));
+}
+
+function ringPath(r, frac, color, sw) {
+  const g = svg("g", {});
+  const c = 2 * Math.PI * r;
+  g.append(svg("circle", { cx: 54, cy: 54, r, fill: "none", stroke: "var(--track)", "stroke-width": sw }));
+  const f = Math.max(0, Math.min(1, frac));
+  if (f > 0) g.append(svg("circle", { cx: 54, cy: 54, r, fill: "none", stroke: color, "stroke-width": sw, "stroke-linecap": "round",
+    "stroke-dasharray": `${c * f} ${c}`, transform: "rotate(-90 54 54)" }));
+  return g;
+}
+
+function renderRings() {
+  const day = DAYS[byDate[state.sel]];
+  const dp = dayProgress(day);
+  const wk = daysOfWeek(day.w).map(dayProgress).reduce((a, p) => ({ n: a.n + p.n, total: a.total + p.total }), { n: 0, total: 0 });
+  const yr = DAYS.map(dayProgress).reduce((a, p) => ({ n: a.n + p.n, total: a.total + p.total }), { n: 0, total: 0 });
+  const s = document.getElementById("rings");
+  s.replaceChildren(ringPath(46, dp.total ? dp.n / dp.total : 0, "var(--pink)", 12), ringPath(32, wk.total ? wk.n / wk.total : 0, "var(--green)", 12), ringPath(18, yr.total ? yr.n / yr.total : 0, "var(--blue)", 12));
+  const mins = day.tasks.reduce((a, t) => a + t.m, 0);
+  const st = streak();
+  document.getElementById("stats").replaceChildren(
+    el("div", { class: "stat" }, el("span", { class: "k k-today", text: "当天" }), el("span", { class: "v" }, `${dp.n}/${dp.total}`, el("small", { text: dp.total ? ` 项 · 约 ${mins} 分钟` : " 休息日" }))),
+    el("div", { class: "stat" }, el("span", { class: "k k-week", text: `第 ${day.w} 周 · ${DATA.themes[day.w] || ""}` }), el("span", { class: "v" }, `${wk.n}/${wk.total}`, el("small", { text: " 项" }))),
+    el("div", { class: "stat" }, el("span", { class: "k k-year", text: "全年" }), el("span", { class: "v" }, `${Math.round(yr.total ? yr.n / yr.total * 100 : 0)}%`, el("small", { text: st ? ` · 连续打卡 ${st} 天` : "" }))));
+}
+
+const CHECK_SVG = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 7.5l3 3 6-7" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function renderTasks() {
+  const day = DAYS[byDate[state.sel]];
+  const ul = document.getElementById("tasks");
+  const rel = diffDays(REAL_TODAY, state.sel);
+  document.getElementById("listTitle").textContent = rel === 0 ? "今日任务" : "当天任务";
+  const ts = day.tasks.map((t, i) => ({ ...t, id: tid(day.date, i) }));
+  const mins = ts.reduce((a, t) => a + t.m, 0);
+  document.getElementById("listMeta").textContent = mins ? `约 ${mins >= 60 ? (Math.round(mins / 6) / 10) + " 小时" : mins + " 分钟"}` : "";
+  if (ts.every(t => t.k === "休息")) {
+    ul.replaceChildren(el("li", { class: "rest" }, el("b", { text: ts[0].t }), el("span", { text: "今天没有安排任务" })));
+    return;
+  }
+  ul.replaceChildren(...ts.map(t => {
+    const on = !!state.done[t.id];
+    const btn = el("button", { class: "check", type: "button", role: "checkbox", "aria-checked": on ? "true" : "false", "aria-label": t.t, disabled: !state.canWrite,
+      onclick: () => toggle(t.id, !state.done[t.id]) });
+    btn.innerHTML = CHECK_SVG;
+    const link = t.l && DATA.links[t.l] ? el("a", { class: "open", href: DATA.links[t.l][1], target: "_blank", rel: "noopener", title: DATA.links[t.l][0] }, t.k === "考证" ? "前往" : /视频|B站|慕课|课程|讲|集/.test(DATA.links[t.l][0]) ? "观看" : "打开") : el("span");
+    return el("li", { class: "row" + (on ? " done" : ""), style: `--c:${TYPE[t.k] || "var(--blue)"}` },
+      btn,
+      el("div", { class: "row-main" },
+        el("span", { class: "row-title", text: t.t }),
+        t.d ? el("span", { class: "row-detail", text: t.d }) : null,
+        el("div", { class: "meta" }, el("span", { class: "pill", text: t.k }), t.m ? el("span", { class: "mins", text: `${t.m} 分钟` }) : null)),
+      link);
   }));
 }
 
-function taskRow(it, t, i) {
-  const id = taskId(it, i);
-  const on = !!state.done[id];
-  const cb = el("input", { type: "checkbox", id: "cb-" + id + (it === currentItem ? "" : ""), "data-task": id });
-  cb.checked = on;
-  cb.disabled = !state.canWrite;
-  cb.addEventListener("change", () => toggle(id, cb.checked));
-  return el("li", { class: "task" + (on ? " done" : ""), "data-track": t[0] },
-    cb, el("span", { class: "tag", "data-t": t[0], text: t[0] }), el("div", {}, el("label", { for: "cb-" + id, text: t[1] }), resLink(t[2])));
-}
-
-function noteBox(it, idPrefix) {
-  const key = itemId(it);
-  const ta = el("textarea", { id: idPrefix + key, placeholder: "完成了什么 / 卡在哪里 / 下周唯一优先级" });
-  ta.value = state.notes[key] || "";
+function renderNote() {
+  const day = DAYS[byDate[state.sel]];
+  const isSun = parse(day.date).getDay() === 0;
+  document.getElementById("noteLabel").textContent = isSun ? "周复盘" : "今日笔记";
+  const ta = document.getElementById("dayNote");
+  ta.placeholder = isSun ? "完成了什么 / 卡在哪里 / 下周最重要的一件事" : "学到了什么、哪里没懂";
+  if (document.activeElement !== ta) ta.value = state.notes[day.date] || "";
   ta.disabled = !state.canWrite;
-  const msg = el("div", { class: "saved" });
-  let timer = null;
-  const commit = () => { clearTimeout(timer); if ((state.notes[key] || "") !== ta.value) saveNote(key, ta.value, msg); };
-  ta.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(commit, 1200); });
-  ta.addEventListener("blur", commit);
-  return [ta, msg];
-}
-
-function renderNow() {
-  const it = currentItem;
-  const box = document.getElementById("now");
-  const n = it.tasks.filter((t, i) => state.done[taskId(it, i)]).length;
-  // Use separate ids for the "now" copy of the checkboxes
-  const list = el("ul", { class: "tasks" }, ...it.tasks.map((t, i) => {
-    const id = taskId(it, i);
-    const cb = el("input", { type: "checkbox", id: "now-" + id });
-    cb.checked = !!state.done[id]; cb.disabled = !state.canWrite;
-    cb.addEventListener("change", () => toggle(id, cb.checked));
-    return el("li", { class: "task" + (state.done[id] ? " done" : "") }, cb,
-      el("span", { class: "tag", "data-t": t[0], text: t[0] }), el("div", {}, el("label", { for: "now-" + id, text: t[1] }), resLink(t[2])));
-  }));
-  const [ta, msg] = noteBox(it, "now-note-");
-  box.replaceChildren(
-    el("div", { class: "now-head" },
-      el("h2", { text: "本周：" + it.theme }),
-      el("span", { class: "week-code", text: `${weekLabel(it)} · ${wkDate(it.w[0])}–${wkDate(it.w[1], true)}` })),
-    el("div", { class: "label", text: `${currentPhase.name} · 本周 ${n}/${it.tasks.length}` }),
-    list,
-    el("label", { class: "label", for: ta.id, text: "周复盘" }), ta, msg);
-}
-
-function renderPhases() {
-  const nav = document.getElementById("phases");
-  nav.replaceChildren(...PLAN.phases.map(p => {
-    const tasks = allTasks().filter(t => t.it.w[0] >= p.range[0] && t.it.w[0] <= p.range[1]);
-    const d = tasks.filter(t => state.done[t.id]).length;
-    return el("button", { class: "ph", type: "button", "aria-current": p === currentPhase ? "true" : "false",
-      onclick: () => document.getElementById("sec-" + p.id).scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }) },
-      el("b", { text: p.name.replace("｜", " ") }),
-      el("span", { class: "meta", text: `W${p.range[0]}–W${p.range[1]} · ${wkDate(p.range[0])}–${wkDate(p.range[1], true)}` }),
-      el("div", { class: "bar" }, el("i", { style: `width:${tasks.length ? d / tasks.length * 100 : 0}%` })),
-      el("span", { class: "meta", text: `${d}/${tasks.length}` }));
-  }));
-}
-
-function renderFilters() {
-  const f = document.getElementById("filters");
-  const chips = [null, ...TRACKS].map(k => el("button", { class: "chip", type: "button", "aria-pressed": state.filter === k ? "true" : "false",
-    text: k || "全部", onclick: () => { state.filter = k; renderFilters(); renderList(); } }));
-  const hide = el("input", { type: "checkbox", id: "hide-done" }); hide.checked = state.hideDone;
-  hide.addEventListener("change", () => { state.hideDone = hide.checked; renderList(); });
-  f.replaceChildren(...chips, el("label", { class: "toggle", for: "hide-done" }, hide, "隐藏已完成"));
-}
-
-function renderList() {
-  const main = document.getElementById("list");
-  const secs = PLAN.phases.map(p => {
-    const rows = PLAN.items.filter(it => it.w[0] >= p.range[0] && it.w[0] <= p.range[1]).map(it => {
-      const idx = it.tasks.map((t, i) => i).filter(i => (!state.filter || it.tasks[i][0] === state.filter) && !(state.hideDone && state.done[taskId(it, i)]));
-      if (!idx.length) return null;
-      const n = it.tasks.filter((t, i) => state.done[taskId(it, i)]).length;
-      const cur = it === currentItem;
-      const [ta, msg] = noteBox(it, "note-");
-      const note = el("details", { class: "note" }, el("summary", { text: state.notes[itemId(it)] ? "周复盘（已写）" : "写周复盘" }), ta, msg);
-      return el("article", { class: "wk" + (cur ? " current" : ""), id: "wk-" + itemId(it) },
-        el("div", { class: "wk-id" },
-          el("span", { class: "mono", text: weekLabel(it) }),
-          el("span", { class: "mono", text: `${wkDate(it.w[0])}–${wkDate(it.w[1], true)}` }),
-          cur ? el("span", { class: "here", text: "本周" }) : null),
-        el("div", { class: "wk-body" },
-          el("h3", {}, it.theme, el("span", { class: "count" + (n === it.tasks.length ? " all" : ""), text: `${n}/${it.tasks.length}` })),
-          el("ul", { class: "tasks" }, ...idx.map(i => taskRow(it, it.tasks[i], i))),
-          note));
-    }).filter(Boolean);
-    return el("section", { class: "phase-sec", id: "sec-" + p.id },
-      el("header", {}, el("h2", { text: p.name }), el("p", { text: "目标：" + p.goal }), el("p", { text: "验收：" + p.check })),
-      rows.length ? el("div", { class: "weeks" }, ...rows) : el("p", { class: "out", text: "这一阶段没有符合筛选条件的任务。" }));
-  });
-  main.replaceChildren(...secs);
+  document.getElementById("noteSaved").textContent = "";
 }
 
 function renderCerts() {
+  document.getElementById("owned").textContent = "已持有 " + DATA.owned;
+  const keys = ["ACA", "AI901", "ACP"];
   const box = document.getElementById("certs");
-  box.replaceChildren(...PLAN.certs.map(c => {
-    const got = !!(c.doneTask && state.done[c.doneTask]);
-    const name = c.link ? el("a", { href: PLAN.links[c.link][1], target: "_blank", rel: "noopener", style: "color:inherit;text-decoration:none" }, c.name + " ↗") : c.name;
-    return el("div", { class: "cert" + (got ? " got" : "") },
-      el("span", { class: "stamp", text: got ? "已考" : `第 ${PLAN.certs.indexOf(c) + 1} 张 · 待考` }),
-      el("b", {}, name),
-      el("span", { class: "when", text: c.when }),
-      el("span", { class: "fee", text: `${c.fee} · ${c.form}` }),
-      el("span", { class: "fee", text: c.why }));
+  box.replaceChildren(...DATA.certs.map((c, i) => {
+    const examDate = DATA.exams[keys[i]];
+    const got = !!(c.doneTaskDate && state.done[c.doneTaskDate]);
+    const left = diffDays(REAL_TODAY, examDate);
+    return el("a", { class: "cert-row", href: DATA.links[c.link][1], target: "_blank", rel: "noopener" },
+      el("div", {}, el("b", { text: c.name }), el("span", { text: `建议考试日 ${fmtDate(examDate)} · ${c.fee}` })),
+      got ? el("div", { class: "days-left got" }, "已考", el("small", { text: "完成" }))
+          : el("div", { class: "days-left" }, left >= 0 ? String(left) : "—", el("small", { text: left >= 0 ? "天后" : "已过" })));
   }));
-  document.getElementById("opts").textContent = "已持有：" + PLAN.owned + "。三张 AI 证书加上 LOMA，是国际保险证书、国际 AI 证书和国内 AI 证书的组合。费用和时间以官网为准。";
 }
 
-function renderAll() { renderSummary(); renderNow(); renderCerts(); renderPhases(); renderList(); }
+function renderDay() { renderHeader(); renderWeek(); renderRings(); renderTasks(); renderNote(); renderCerts(); }
+
+/* ---------- year view ---------- */
+function renderYear() {
+  const box = document.getElementById("view-year");
+  const curW = weekOf(TODAY);
+  box.replaceChildren(...DATA.phases.map(ph => {
+    const rows = [];
+    for (let w = ph.range[0]; w <= ph.range[1]; w++) {
+      const ds = daysOfWeek(w);
+      const p = ds.map(dayProgress).reduce((a, x) => ({ n: a.n + x.n, total: a.total + x.total }), { n: 0, total: 0 });
+      rows.push(el("button", { class: "wk-row" + (w === curW ? " cur" : ""), type: "button", onclick: () => { state.sel = w === curW ? TODAY : ds[0].date; setView("day"); } },
+        el("span", { class: "wk-no", text: "W" + w }),
+        el("div", {}, el("div", { class: "wk-t", text: DATA.themes[w] || "" }), el("div", { class: "wk-d", text: `${fmtDate(ds[0].date)} – ${fmtDate(ds[ds.length - 1].date)}` })),
+        el("div", {}, el("div", { class: "bar" }, el("i", { style: `width:${p.total ? p.n / p.total * 100 : 0}%` })), el("div", { class: "wk-p", text: `${p.n}/${p.total}` }))));
+    }
+    return el("section", { class: "phase" },
+      el("div", { class: "phase-head" }, el("h3", { text: ph.name.replace("｜", " · ") }), el("p", { text: ph.goal })),
+      el("div", { class: "card", style: "overflow:hidden" }, ...rows));
+  }));
+}
+
+function setView(v) {
+  state.view = v;
+  document.getElementById("tab-day").setAttribute("aria-selected", v === "day");
+  document.getElementById("tab-year").setAttribute("aria-selected", v === "year");
+  document.getElementById("view-day").hidden = v !== "day";
+  document.getElementById("view-year").hidden = v !== "year";
+  if (v === "year") renderYear(); else renderDay();
+  renderHeader();
+  window.scrollTo(0, 0);
+}
 
 /* ---------- writes ---------- */
 async function toggle(id, on) {
   if (on) state.done[id] = new Date().toISOString(); else delete state.done[id];
-  saveLocal();
-  renderAll();
+  saveLocal(); renderDay();
   if (state.mode !== "db") return;
   try {
-    const ref = db.collection("checks").doc(id);
+    const ref = db.collection("dchecks").doc(id);
     if (on) await ref.set({ done: true, at: state.done[id] }); else await ref.delete();
-  } catch (e) { setSync("保存失败：" + (e && e.code === "invalid_argument" ? "你没有编辑权限。" : "网络或服务暂时不可用，稍后再勾一次。")); }
+  } catch (e) { setSync("这次勾选没有保存到云端，请稍后再点一次。"); }
 }
-async function saveNote(key, text, msg) {
-  state.notes[key] = text; saveLocal();
+let noteTimer = null;
+function onNoteInput() {
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(commitNote, 1000);
+}
+async function commitNote() {
+  clearTimeout(noteTimer);
+  const date = state.sel, text = document.getElementById("dayNote").value;
+  if ((state.notes[date] || "") === text) return;
+  state.notes[date] = text; saveLocal();
+  const msg = document.getElementById("noteSaved");
   if (state.mode !== "db") { msg.textContent = "已保存在本设备"; return; }
   try {
-    const ref = db.collection("notes").doc(key);
+    const ref = db.collection("dnotes").doc(date);
     if (text.trim()) await ref.set({ text, at: new Date().toISOString() }); else await ref.delete();
     msg.textContent = "已保存";
   } catch (e) { msg.textContent = "保存失败，请稍后再试"; }
 }
 function setSync(t) { document.getElementById("sync").textContent = t; }
 
-/* ---------- connect ---------- */
 async function connect() {
-  const fallback = (why) => { state.mode = "local"; setSync(why); };
-  if (!window.claude || typeof window.claude.use !== "function") return fallback("只保存在这台设备的浏览器里。");
+  const fallback = t => { state.mode = "local"; setSync(t); };
+  if (!window.claude || typeof window.claude.use !== "function") return fallback("进度保存在这台设备的浏览器里。");
   try {
     db = await window.claude.use("db");
     const user = await window.claude.use("user");
     if (!db) return fallback("云端保存不可用，进度只保存在这台设备的浏览器里。");
     const owner = user ? await user.isOwner() : true;
-    state.canWrite = owner !== false;
-    state.mode = "db";
-    setSync(state.canWrite ? "进度自动保存到云端，换设备打开也在。" : "只读查看：只有看板主人可以勾选。");
-    db.collection("checks").onSnapshot(snap => {
-      const next = {};
-      snap.docs.forEach(d => { const v = d.data(); if (v && v.done) next[d.id] = v.at || true; });
-      state.done = next; saveLocal(); renderAll();
-    }, () => setSync("和云端的连接断开了，刷新页面可重连。"));
-    db.collection("notes").onSnapshot(snap => {
-      const next = {};
-      snap.docs.forEach(d => { const v = d.data(); if (v && v.text) next[d.id] = v.text; });
-      const active = document.activeElement && document.activeElement.tagName === "TEXTAREA";
-      state.notes = next; saveLocal(); if (!active) renderAll();
+    state.canWrite = owner !== false; state.mode = "db";
+    setSync(state.canWrite ? "进度自动保存到云端，手机和电脑打开都能看到。" : "只读查看：只有看板主人可以打卡。");
+    db.collection("dchecks").onSnapshot(snap => {
+      const next = {}; snap.docs.forEach(d => { const v = d.data(); if (v && v.done) next[d.id] = v.at || true; });
+      state.done = next; saveLocal(); if (state.view === "day") renderDay(); else renderYear();
+    }, () => setSync("和云端的连接断开了，刷新页面可以重新连接。"));
+    db.collection("dnotes").onSnapshot(snap => {
+      const next = {}; snap.docs.forEach(d => { const v = d.data(); if (v && v.text) next[d.id] = v.text; });
+      state.notes = next; saveLocal(); if (state.view === "day") renderNote();
     }, () => {});
   } catch (e) { fallback("云端保存不可用，进度只保存在这台设备的浏览器里。"); }
 }
 
+document.getElementById("tab-day").addEventListener("click", () => setView("day"));
+document.getElementById("tab-year").addEventListener("click", () => setView("year"));
+document.getElementById("backToday").addEventListener("click", () => { state.sel = TODAY; renderDay(); });
+const noteEl = document.getElementById("dayNote");
+noteEl.addEventListener("input", onNoteInput);
+noteEl.addEventListener("blur", commitNote);
+document.addEventListener("keydown", e => {
+  if (state.view !== "day" || e.target.tagName === "TEXTAREA") return;
+  if (e.key === "ArrowLeft" && state.sel > FIRST) { state.sel = addDays(state.sel, -1); renderDay(); }
+  if (e.key === "ArrowRight" && state.sel < LAST) { state.sel = addDays(state.sel, 1); renderDay(); }
+});
+
 loadLocal();
-renderFilters();
-renderAll();
+renderDay();
 connect();
 </script>
 
